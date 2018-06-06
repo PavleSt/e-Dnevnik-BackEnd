@@ -25,7 +25,7 @@ import com.example.finalproject.services.TeacherSerice;
 import com.example.finalproject.utils.RESTError;
 
 @RestController
-@RequestMapping(value = "/api/v1/finalproject/teachers")
+@RequestMapping(value = "/api/v1/final-project/teachers")
 public class TeacherController {
 
 	@Autowired
@@ -34,16 +34,19 @@ public class TeacherController {
 	private TeacherSerice teacServ;
 	
 	@GetMapping("/")
-	public List<TeacherEntity> gettAllTeachers () {
-		return (List<TeacherEntity>) teacRepo.findAll();
-	} //dodati respe
+	public ResponseEntity<?> gettAllTeachers() {
+		if(teacRepo.count() == 0) {
+			return new ResponseEntity<RESTError>(new RESTError(4, "List is empty"), HttpStatus.NOT_FOUND);
+		}
+		return  new ResponseEntity((List<TeacherEntity>) teacRepo.findAll(), HttpStatus.OK);
+	} 
 	
 	@GetMapping("/{id}")
 	public ResponseEntity<?> getTeacher(@PathVariable Integer id) {
-		if(teacRepo.existsById(id)) {
-			return new ResponseEntity<TeacherEntity>(teacRepo.findById(id).get(),HttpStatus.OK);
+		if(!teacRepo.existsById(id)) {
+			return new ResponseEntity<RESTError>(new RESTError(1, "User not found"), HttpStatus.NOT_FOUND);	
 		}
-		return new ResponseEntity<RESTError>(new RESTError(1, "User not found"), HttpStatus.NOT_FOUND);	
+		return new ResponseEntity<TeacherEntity>(teacRepo.findById(id).get(),HttpStatus.OK);
 	}
 	
 	@PostMapping("/")
@@ -58,10 +61,10 @@ public class TeacherController {
 	
 	@PutMapping("/{id}")
 	public ResponseEntity<?> updateTeacher(@PathVariable Integer id, @Valid @RequestBody TeacherDTO newTeacher) {
-		TeacherEntity teacher = teacRepo.findById(id).get();
 		if(!teacRepo.existsById(id)) {
 			return new ResponseEntity<RESTError>(new RESTError(1, "User not found"), HttpStatus.NOT_FOUND);
 		}
+		TeacherEntity teacher = teacRepo.findById(id).get();
 		teacher.setFirstName(newTeacher.getFirstName());
 		teacher.setLastName(newTeacher.getLastName());
 		teacher.setDob(newTeacher.getDob());
@@ -71,16 +74,17 @@ public class TeacherController {
 	
 	@DeleteMapping("/{id}")
 	public ResponseEntity<?> deleteTeacher(@PathVariable Integer id) {
-		TeacherEntity teacher = teacRepo.findById(id).get();
 		if(!teacRepo.existsById(id)) {
 			return new ResponseEntity<RESTError>(new RESTError(1, "User not found"), HttpStatus.NOT_FOUND);
 		}
+		TeacherEntity teacher = teacRepo.findById(id).get();
 		teacRepo.deleteById(id);
 		return new ResponseEntity<TeacherEntity>(teacher, HttpStatus.OK);
 	}
 	
 	@PutMapping("/credentials/{teacherId}")
-	public ResponseEntity<?> addUserAndPass(@PathVariable Integer teacherId, @Valid @RequestBody CredentialsDTO credentials) {
+	public ResponseEntity<?> addUserAndPass(@PathVariable Integer teacherId, 
+			@Valid @RequestBody CredentialsDTO credentials) {
 		return teacServ.addUserAndPass(teacherId, credentials);
 	}
 	

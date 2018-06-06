@@ -29,7 +29,8 @@ public class TeacherEntity extends UserEntity {
 	@Column
 	@JsonProperty("email")
 	@NotNull(message = "Email address must be provided!")
-	@Pattern(regexp= "^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$")
+	@Pattern(regexp= "^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$",
+			message = "Incompatibile email pattern")
 	private String email;
 
 	

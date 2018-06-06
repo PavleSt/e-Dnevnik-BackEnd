@@ -35,18 +35,21 @@ public class SubjectEntity {
 	@GeneratedValue
 	@JsonProperty("ID")
 	private Integer id;
+	
 	@Column
 	@JsonProperty("subject_name")
 	@NotNull(message = "Name of the subject must be provided!")
 	@Size(min = 2, max = 20, message = "Name of the subject must be between {min} and {max} characters long!")
 	@Pattern(regexp = "^[a-zA-Z_]*$")
 	private String subjectName;
+	
 	@Column
 	@JsonProperty("number_of_lectures_per_week")
 	@NotNull(message = "Number of lectures must be provided!")
 	@Min(value = 2, message = "Number of lectures must be greater than or equal to 2")
 	@Max(value = 10, message = "Number of lectures must be less than or equal to 10")
 	private Integer weeklyLectures;
+	
 	@Version
 	private Integer version;
 

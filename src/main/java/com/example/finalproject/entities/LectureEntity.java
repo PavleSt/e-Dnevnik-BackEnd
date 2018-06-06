@@ -30,6 +30,7 @@ public class LectureEntity {
 	@Id
 	@GeneratedValue
 	private Integer id;
+	
 	@Version
 	private Integer version;
 	
@@ -95,7 +96,7 @@ public class LectureEntity {
 		this.grade = grade;
 	}
 		
-	@OneToMany(mappedBy = "teaches", cascade = CascadeType.REFRESH, fetch = FetchType.LAZY)
+	@OneToMany(mappedBy = "lecture", cascade = CascadeType.REFRESH, fetch = FetchType.LAZY)
 	private List<MarkEntity> marks;
 
 	@JsonBackReference(value = "Teaches - Marks")

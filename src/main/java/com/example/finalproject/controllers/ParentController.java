@@ -19,29 +19,36 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.finalproject.entities.ParentEntity;
 import com.example.finalproject.entities.TeacherEntity;
+import com.example.finalproject.entities.dto.CredentialsDTO;
 import com.example.finalproject.entities.dto.ParentDTO;
 import com.example.finalproject.entities.dto.TeacherDTO;
 import com.example.finalproject.repositories.ParentRepository;
+import com.example.finalproject.services.ParentService;
 import com.example.finalproject.utils.RESTError;
 
 @RestController
-@RequestMapping(value = "/api/v1/finalproject/parents")
+@RequestMapping(value = "/api/v1/final-project/parents")
 public class ParentController {
 	
 	@Autowired
 	private ParentRepository pareRepo;
+	@Autowired
+	private ParentService pareServ;
 	
 	@GetMapping("/")
-	public List <ParentEntity>  getAllParents() {
-		return (List<ParentEntity>) pareRepo.findAll();
+	public ResponseEntity<?>  getAllParents() {
+		if(pareRepo.count() == 0) {
+			return new ResponseEntity<RESTError>(new RESTError(4, "List is empty"), HttpStatus.NOT_FOUND);
+		}
+		return new ResponseEntity((List<ParentEntity>) pareRepo.findAll(), HttpStatus.OK);
 	}
 	
 	@GetMapping("/{id}")
 	public ResponseEntity<?> getParent(@PathVariable Integer id) {
-		if(pareRepo.existsById(id)) {
-			return new ResponseEntity<ParentEntity>(pareRepo.findById(id).get(),HttpStatus.OK);
+		if(!pareRepo.existsById(id)) {
+			return new ResponseEntity<RESTError>(new RESTError(1, "User not found"), HttpStatus.NOT_FOUND);	
 		}
-		return new ResponseEntity<RESTError>(new RESTError(1, "User not found"), HttpStatus.NOT_FOUND);	
+		return new ResponseEntity<ParentEntity>(pareRepo.findById(id).get(),HttpStatus.OK);
 	}
 	
 	@PostMapping("/")
@@ -56,10 +63,10 @@ public class ParentController {
 
 	@PutMapping("/{id}")
 	public ResponseEntity<?> updateParent(@PathVariable Integer id, @Valid @RequestBody ParentDTO newParent) {
-		ParentEntity parent = pareRepo.findById(id).get();
 		if(!pareRepo.existsById(id)) {
 			return new ResponseEntity<RESTError>(new RESTError(1, "User not found"), HttpStatus.NOT_FOUND);
 		}
+		ParentEntity parent = pareRepo.findById(id).get();
 		parent.setFirstName(newParent.getFirstName());
 		parent.setLastName(newParent.getLastName());
 		parent.setDob(newParent.getDob());
@@ -69,11 +76,17 @@ public class ParentController {
 	
 	@DeleteMapping("/{id}")
 	public ResponseEntity<?> deleteParent(@PathVariable Integer id) {
-		ParentEntity parent = pareRepo.findById(id).get();
 		if(!pareRepo.existsById(id)) {
 			return new ResponseEntity<RESTError>(new RESTError(1, "User not found"), HttpStatus.NOT_FOUND);
 		}
+		ParentEntity parent = pareRepo.findById(id).get();
 		pareRepo.deleteById(id);
 		return new ResponseEntity<ParentEntity>(parent, HttpStatus.OK);
+	}
+	
+	@PutMapping("/credentials/{parentId}")
+	public ResponseEntity<?> addUserAndPass(@PathVariable Integer parentId, 
+			@Valid @RequestBody CredentialsDTO credentials) {
+		return pareServ.addUserAndPass(parentId, credentials);
 	}
 }

@@ -27,18 +27,21 @@ public abstract class UserEntity {
 	@GeneratedValue
 	@JsonProperty("ID")
 	private Integer id;
+	
 	@Column
 	@JsonProperty("first_name")
 	@NotNull(message = "First name must be provided!")
 	@Size(min = 2, max = 30, message = "First name must be between {min} and {max} characters long!")
 	@Pattern(regexp = "^[a-zA-Z]*$")
 	private String firstName;
+	
 	@Column
 	@JsonProperty("last_name")
 	@NotNull(message = "Last name must be provided!")
 	@Size(min = 2, max = 30, message = "Last name must be between {min} and {max} characters long!")
 	@Pattern(regexp = "^[a-zA-Z']*$")
 	private String lastName;
+	
 	@Column
 	@JsonProperty("date_of_birth")
 	@NotNull(message = "Date of birth must be provided!")
@@ -47,18 +50,21 @@ public abstract class UserEntity {
 	//@Past
 	@Temporal(TemporalType.DATE)
 	private Date dob;
+	
 	@Column
 	@JsonProperty("username")
 	//@NotNull(message = "Username must be provided!")
 	@Size(min = 5, max = 15, message = "Username must be between {min} and {max} characters long!")
 	@Pattern(regexp = "^[a-zA-Z0-9]*$")
 	private String username;
+	
 	@Column
 	//@JsonProperty("password")
 	//@NotNull(message = "Password must be provided!")
 	@Size(min = 5, max = 15, message = "Password must be between {min} and {max} characters long!")
 	@Pattern(regexp = "^[a-zA-Z0-9]*$")
 	private String password;
+	
 	@Version
 	private Integer version;
 	

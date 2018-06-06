@@ -1,5 +1,6 @@
 package com.example.finalproject.entities;
 
+import java.time.ZonedDateTime;
 import java.util.Date;
 
 import javax.persistence.CascadeType;
@@ -14,6 +15,7 @@ import javax.persistence.Table;
 import javax.persistence.Version;
 
 import com.example.finalproject.entities.enums.EMarkType;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 @Entity
@@ -24,11 +26,11 @@ public class MarkEntity {
 	@GeneratedValue
 	private Integer id;
 	@Column
-	private Integer mark;
+	private Integer markNo;
 	@Column
 	private EMarkType markType;
 	@Column
-	private Date evaluationDate;
+	private ZonedDateTime evaluationDate;
 	@Version
 	private Integer version;
 
@@ -47,12 +49,12 @@ public class MarkEntity {
 		this.id = id;
 	}
 
-	public Integer getMark() {
-		return mark;
+	public Integer getMarkNo() {
+		return markNo;
 	}
 
-	public void setMark(Integer mark) {
-		this.mark = mark;
+	public void setMarkNo(Integer markNo) {
+		this.markNo = markNo;
 	}
 
 	public EMarkType getMarkType() {
@@ -63,11 +65,11 @@ public class MarkEntity {
 		this.markType = markType;
 	}
 
-	public Date getEvaluationDate() {
+	public ZonedDateTime getEvaluationDate() {
 		return evaluationDate;
 	}
-
-	public void setEvaluationDate(Date evaluationDate) {
+	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy hh:mm:ss")
+	public void setEvaluationDate(ZonedDateTime evaluationDate) {
 		this.evaluationDate = evaluationDate;
 	}
 
@@ -80,16 +82,16 @@ public class MarkEntity {
 	}
 
 	@ManyToOne(cascade = CascadeType.REFRESH, fetch = FetchType.LAZY)
-	@JoinColumn(name = "teaches")
-	public LectureEntity teaches;
+	@JoinColumn(name = "lecture")
+	public LectureEntity lecture;
 
 	//@JsonManagedReference(value = "Teaches - Marks")
-	public LectureEntity getTeaches() {
-		return teaches;
+	public LectureEntity getLecture() {
+		return lecture;
 	}
 
-	public void setTeaches(LectureEntity teaches) {
-		this.teaches = teaches;
+	public void setLecture(LectureEntity lecture) {
+		this.lecture = lecture;
 	}
 	
 	@ManyToOne(cascade = CascadeType.REFRESH, fetch = FetchType.LAZY)

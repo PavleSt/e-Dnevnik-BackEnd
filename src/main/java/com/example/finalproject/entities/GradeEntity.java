@@ -34,20 +34,21 @@ public class GradeEntity {
 	@GeneratedValue
 	@JsonProperty("ID")
 	private Integer id;
+	
 	@Column
 	@JsonProperty("year")
 	@NotNull(message = "Year of school must be provided!")
-	//@Pattern(regexp = "^[1-8]\\d{1}$")
 	@Min(value = 1, message = "Year of school must be greater than or equal to 1")
 	@Max(value = 8, message = "Year of school must be less than or equal to 8")
 	private Integer year;
+	
 	@Column
 	@JsonProperty("class")
 	@NotNull(message = "Student's class must be provided!")
-	//@Pattern(regexp = "[1-3]{1}")
 	@Min(value = 1, message = "Student's class must be greater than or equal to 1")
 	@Max(value = 3, message = "Student's class must be less than or equal to 3")
 	private Integer classroom;
+	
 	@Version
 	private Integer version;
 	

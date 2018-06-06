@@ -9,6 +9,6 @@ import com.example.finalproject.entities.dto.CredentialsDTO;
 
 public interface TeacherSerice {
 
-	ResponseEntity<?> addUserAndPass (Integer teacherId, CredentialsDTO credentials);
+	ResponseEntity<?> addUserAndPass(Integer teacherId, CredentialsDTO credentials);
 	
 }
