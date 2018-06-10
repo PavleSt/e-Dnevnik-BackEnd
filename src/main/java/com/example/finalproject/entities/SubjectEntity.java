@@ -40,7 +40,7 @@ public class SubjectEntity {
 	@JsonProperty("subject_name")
 	@NotNull(message = "Name of the subject must be provided!")
 	@Size(min = 2, max = 20, message = "Name of the subject must be between {min} and {max} characters long!")
-	@Pattern(regexp = "^[a-zA-Z_]*$")
+	@Pattern(regexp = "^[a-zA-Z1-8_]*$")
 	private String subjectName;
 	
 	@Column

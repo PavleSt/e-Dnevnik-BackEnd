@@ -31,7 +31,7 @@ public class GradeController {
 	private GradeRepository gradRepo;
 	
 	@GetMapping("/")
-	public ResponseEntity<?> getAllGrades () {
+	public ResponseEntity<?> getAllGrades() {
 		if (gradRepo.count() == 0) {
 			return new ResponseEntity<RESTError>(new RESTError(4, "List is empty"), HttpStatus.NOT_FOUND);
 		}
@@ -66,7 +66,7 @@ public class GradeController {
 	}
 	
 	@DeleteMapping("/{id}")
-	public ResponseEntity<?> deleteParent(@PathVariable Integer id) {
+	public ResponseEntity<?> deleteGrade(@PathVariable Integer id) {
 		if(!gradRepo.existsById(id)) {
 			return new ResponseEntity<RESTError>(new RESTError(1, "User not found"), HttpStatus.NOT_FOUND);
 		}

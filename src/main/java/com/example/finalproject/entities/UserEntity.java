@@ -2,9 +2,16 @@ package com.example.finalproject.entities;
 
 import java.util.Date;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -14,13 +21,17 @@ import javax.validation.constraints.Past;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
+import org.hibernate.annotations.GeneratorType;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-@MappedSuperclass
-@JsonIgnoreProperties
+@Entity
+@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
+//@MappedSuperclass
+//@JsonIgnoreProperties
 public abstract class UserEntity {
 	
 	@Id
@@ -61,8 +72,8 @@ public abstract class UserEntity {
 	@Column
 	//@JsonProperty("password")
 	//@NotNull(message = "Password must be provided!")
-	@Size(min = 5, max = 15, message = "Password must be between {min} and {max} characters long!")
-	@Pattern(regexp = "^[a-zA-Z0-9]*$")
+	@Size(min = 5, max = 100, message = "Password must be between {min} and {max} characters long!")
+	//@Pattern(regexp = "^[a-zA-Z0-9]*$")
 	private String password;
 	
 	@Version
@@ -74,7 +85,6 @@ public abstract class UserEntity {
 		// TODO Auto-generated constructor stub
 	}
 
-	
 	public Integer getId() {
 		return id;
 	}
@@ -131,5 +141,16 @@ public abstract class UserEntity {
 		this.version = version;
 	}
 	
+	@ManyToOne(cascade = CascadeType.REFRESH, fetch = FetchType.LAZY)
+	@JoinColumn(name = "role")
+	public RoleEntity role;
+
+	public RoleEntity getRole() {
+		return role;
+	}
+
+	public void setRole(RoleEntity role) {
+		this.role = role;
+	}
 
 }

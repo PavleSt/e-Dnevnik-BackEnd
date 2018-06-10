@@ -65,7 +65,7 @@ public class SubjectController {
 	}
 	
 	@DeleteMapping("/{id}")
-	public ResponseEntity<?> deleteParent(@PathVariable Integer id) {
+	public ResponseEntity<?> deleteSubject(@PathVariable Integer id) {
 		if(!subjRepo.existsById(id)) {
 			return new ResponseEntity<RESTError>(new RESTError(1, "User not found"), HttpStatus.NOT_FOUND);
 		}

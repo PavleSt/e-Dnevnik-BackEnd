@@ -23,6 +23,7 @@ import com.example.finalproject.entities.dto.CredentialsDTO;
 import com.example.finalproject.entities.dto.ParentDTO;
 import com.example.finalproject.entities.dto.TeacherDTO;
 import com.example.finalproject.repositories.ParentRepository;
+import com.example.finalproject.repositories.RoleRepository;
 import com.example.finalproject.services.ParentService;
 import com.example.finalproject.utils.RESTError;
 
@@ -34,6 +35,8 @@ public class ParentController {
 	private ParentRepository pareRepo;
 	@Autowired
 	private ParentService pareServ;
+	@Autowired
+	private RoleRepository roleRepo;
 	
 	@GetMapping("/")
 	public ResponseEntity<?>  getAllParents() {
@@ -58,6 +61,7 @@ public class ParentController {
 		parent.setLastName(newParent.getLastName());
 		parent.setDob(newParent.getDob());
 		parent.setEmail(newParent.getEmail());
+		parent.setRole(roleRepo.findByName("ROLE_PARENT"));
 		return new ResponseEntity<ParentEntity>(pareRepo.save(parent),HttpStatus.CREATED);
 	}
 

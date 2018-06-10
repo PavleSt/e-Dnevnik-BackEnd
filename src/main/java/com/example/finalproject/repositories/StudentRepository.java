@@ -9,5 +9,5 @@ public interface StudentRepository extends CrudRepository<StudentEntity, Integer
 
 	StudentEntity findByUsername (String username);
 	StudentEntity findByPassword (String password);
-	StudentEntity findByGrade (GradeEntity grade);
+	//StudentEntity findByGrade (GradeEntity grade);
 }

@@ -19,7 +19,7 @@ import com.fasterxml.jackson.annotation.JsonRootName;
 @Entity
 @Table(name = "Student")
 @JsonRootName(value = "Student")
-@JsonPropertyOrder({ "id", "first_name", "last_name", "date_of_birth", "username", "password", "grade", "parent", "version" })
+@JsonPropertyOrder({ "id", "first_name", "last_name", "date_of_birth", "username", "password", "grade", "parent", "role", "version" })
 @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
 public class StudentEntity extends UserEntity {
 
@@ -65,5 +65,6 @@ public class StudentEntity extends UserEntity {
 	public void setParent(ParentEntity parent) {
 		this.parent = parent;
 	}
+		
 
 }

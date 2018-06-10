@@ -26,6 +26,7 @@ import com.example.finalproject.entities.dto.ParentDTO;
 import com.example.finalproject.entities.dto.StudentDTO;
 import com.example.finalproject.repositories.GradeRepository;
 import com.example.finalproject.repositories.ParentRepository;
+import com.example.finalproject.repositories.RoleRepository;
 import com.example.finalproject.repositories.StudentRepository;
 import com.example.finalproject.services.StudentService;
 import com.example.finalproject.utils.RESTError;
@@ -42,6 +43,8 @@ public class StudentController {
 	private ParentRepository pareRepo;
 	@Autowired
 	private GradeRepository gradRepo;
+	@Autowired
+	private RoleRepository roleRepo;
 	
 
 	@GetMapping("/")
@@ -64,6 +67,7 @@ public class StudentController {
 		student.setFirstName(newStudent.getFirstName());
 		student.setLastName(newStudent.getLastName());
 		student.setDob(newStudent.getDob());
+		student.setRole(roleRepo.findByName("ROLE_STUDENT"));
 		if (!pareRepo.existsById(parentId)) {
 			return new ResponseEntity<RESTError>(new RESTError(1, "User not found"), HttpStatus.NOT_FOUND);
 		} else {
@@ -78,7 +82,7 @@ public class StudentController {
 	}
 
 	@PutMapping("/{id}")
-	public ResponseEntity<?> updateParent(@PathVariable Integer id, @Valid @RequestBody StudentDTO newStudent,
+	public ResponseEntity<?> updateStudent(@PathVariable Integer id, @Valid @RequestBody StudentDTO newStudent,
 			@RequestParam Integer parentId, @RequestParam Integer gradeId) {
 		StudentEntity student = studRepo.findById(id).get();
 		if (!studRepo.existsById(id)) {
@@ -101,7 +105,7 @@ public class StudentController {
 	}
 
 	@DeleteMapping("/{id}")
-	public ResponseEntity<?> deleteParent(@PathVariable Integer id) {
+	public ResponseEntity<?> deleteStudent(@PathVariable Integer id) {
 		StudentEntity student = studRepo.findById(id).get();
 		if (!studRepo.existsById(id)) {
 			return new ResponseEntity<RESTError>(new RESTError(1, "User not found"), HttpStatus.NOT_FOUND);

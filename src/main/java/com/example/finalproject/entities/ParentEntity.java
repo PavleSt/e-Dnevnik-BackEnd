@@ -6,6 +6,8 @@ import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
@@ -20,7 +22,7 @@ import com.fasterxml.jackson.annotation.JsonRootName;
 @Entity
 @Table(name = "Parent")
 @JsonRootName(value = "Parent")
-@JsonPropertyOrder({ "id", "first_name", "last_name", "date_of_birth", "email", "username", "password", "version" })
+@JsonPropertyOrder({ "id", "first_name", "last_name", "date_of_birth", "email", "username", "password", "role", "version" })
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler" })
 public class ParentEntity extends UserEntity{
 
@@ -57,5 +59,6 @@ public class ParentEntity extends UserEntity{
 	public void setStudent(List<StudentEntity> student) {
 		this.student = student;
 	}
+		
 	
 }

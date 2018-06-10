@@ -7,6 +7,7 @@ import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.finalproject.entities.TeacherEntity;
 import com.example.finalproject.entities.dto.CredentialsDTO;
 import com.example.finalproject.entities.dto.TeacherDTO;
+import com.example.finalproject.repositories.RoleRepository;
 import com.example.finalproject.repositories.TeacherRepository;
 import com.example.finalproject.services.TeacherSerice;
 import com.example.finalproject.utils.RESTError;
@@ -32,13 +34,16 @@ public class TeacherController {
 	private TeacherRepository teacRepo;
 	@Autowired
 	private TeacherSerice teacServ;
+	@Autowired
+	private RoleRepository roleRepo;
 	
+	@Secured("ROLE_ADMIN")
 	@GetMapping("/")
 	public ResponseEntity<?> gettAllTeachers() {
 		if(teacRepo.count() == 0) {
 			return new ResponseEntity<RESTError>(new RESTError(4, "List is empty"), HttpStatus.NOT_FOUND);
 		}
-		return  new ResponseEntity((List<TeacherEntity>) teacRepo.findAll(), HttpStatus.OK);
+		return new ResponseEntity((List<TeacherEntity>) teacRepo.findAll(), HttpStatus.OK);
 	} 
 	
 	@GetMapping("/{id}")
@@ -56,6 +61,7 @@ public class TeacherController {
 		teacher.setLastName(newTeacher.getLastName());
 		teacher.setDob(newTeacher.getDob());
 		teacher.setEmail(newTeacher.getEmail());
+		teacher.setRole(roleRepo.findByName("ROLE_TEACHER"));
 		return new ResponseEntity<TeacherEntity>(teacRepo.save(teacher),HttpStatus.CREATED);
 	}
 	
@@ -69,6 +75,7 @@ public class TeacherController {
 		teacher.setLastName(newTeacher.getLastName());
 		teacher.setDob(newTeacher.getDob());
 		teacher.setEmail(newTeacher.getEmail());
+		// teacher.setPassword(Encryprion.getPasswordEncoded(newTeacher.getPassword());
 		return new ResponseEntity<TeacherEntity>(teacRepo.save(teacher),HttpStatus.OK);
 	}
 	
