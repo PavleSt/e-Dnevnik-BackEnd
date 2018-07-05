@@ -2,6 +2,7 @@ package com.example.finalproject.controllers;
 
 import java.util.List;
 
+import java.security.Principal;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,9 +44,10 @@ public class TeacherController {
 		if(teacRepo.count() == 0) {
 			return new ResponseEntity<RESTError>(new RESTError(4, "List is empty"), HttpStatus.NOT_FOUND);
 		}
-		return new ResponseEntity((List<TeacherEntity>) teacRepo.findAll(), HttpStatus.OK);
+		return new ResponseEntity<List<TeacherEntity>>((List<TeacherEntity>) teacRepo.findAll(), HttpStatus.OK);
 	} 
 	
+	@Secured("ROLE_ADMIN")
 	@GetMapping("/{id}")
 	public ResponseEntity<?> getTeacher(@PathVariable Integer id) {
 		if(!teacRepo.existsById(id)) {
@@ -54,17 +56,13 @@ public class TeacherController {
 		return new ResponseEntity<TeacherEntity>(teacRepo.findById(id).get(),HttpStatus.OK);
 	}
 	
+	@Secured("ROLE_ADMIN")
 	@PostMapping("/")
 	public ResponseEntity<?> addNewTeacher (@Valid @RequestBody TeacherDTO newTeacher) {
-		TeacherEntity teacher = new TeacherEntity();
-		teacher.setFirstName(newTeacher.getFirstName());
-		teacher.setLastName(newTeacher.getLastName());
-		teacher.setDob(newTeacher.getDob());
-		teacher.setEmail(newTeacher.getEmail());
-		teacher.setRole(roleRepo.findByName("ROLE_TEACHER"));
-		return new ResponseEntity<TeacherEntity>(teacRepo.save(teacher),HttpStatus.CREATED);
+		return teacServ.addNewTeacher(newTeacher);
 	}
 	
+	@Secured("ROLE_ADMIN")
 	@PutMapping("/{id}")
 	public ResponseEntity<?> updateTeacher(@PathVariable Integer id, @Valid @RequestBody TeacherDTO newTeacher) {
 		if(!teacRepo.existsById(id)) {
@@ -79,6 +77,7 @@ public class TeacherController {
 		return new ResponseEntity<TeacherEntity>(teacRepo.save(teacher),HttpStatus.OK);
 	}
 	
+	@Secured("ROLE_ADMIN")
 	@DeleteMapping("/{id}")
 	public ResponseEntity<?> deleteTeacher(@PathVariable Integer id) {
 		if(!teacRepo.existsById(id)) {
@@ -89,10 +88,10 @@ public class TeacherController {
 		return new ResponseEntity<TeacherEntity>(teacher, HttpStatus.OK);
 	}
 	
-	@PutMapping("/credentials/{teacherId}")
-	public ResponseEntity<?> addUserAndPass(@PathVariable Integer teacherId, 
-			@Valid @RequestBody CredentialsDTO credentials) {
-		return teacServ.addUserAndPass(teacherId, credentials);
+	@Secured("ROLE_TEACHER")
+	@PutMapping("/credentials")
+	public ResponseEntity<?> changeUserAndPass(@Valid @RequestBody CredentialsDTO credentials) {
+		return teacServ.changeUserAndPass(credentials);
 	}
 	
 }

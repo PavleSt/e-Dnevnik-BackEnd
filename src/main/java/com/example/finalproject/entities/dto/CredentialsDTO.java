@@ -23,28 +23,48 @@ public class CredentialsDTO {
 	@Pattern(regexp = "^[a-zA-Z0-9]*$")
 	private String password;
 	
+	private String confirmPassword;
 	
-	
+	private String usernameNew;
+	private String passwordNew;
 	public CredentialsDTO() {
 		super();
 		// TODO Auto-generated constructor stub
 	}
-
 	public String getUsername() {
 		return username;
 	}
-
 	public void setUsername(String username) {
 		this.username = username;
 	}
-
 	public String getPassword() {
 		return password;
 	}
-
 	public void setPassword(String password) {
 		this.password = password;
 	}
-		
+	public String getConfirmPassword() {
+		return confirmPassword;
+	}
+	public void setConfirmPassword(String confirmPassword) {
+		this.confirmPassword = confirmPassword;
+	}
+	public String getUsernameNew() {
+		return usernameNew;
+	}
+	public void setUsernameNew(String usernameNew) {
+		this.usernameNew = usernameNew;
+	}
+	public String getPasswordNew() {
+		return passwordNew;
+	}
+	public void setPasswordNew(String passwordNew) {
+		this.passwordNew = passwordNew;
+	}
+
+
+	
+
+	
 	
 }

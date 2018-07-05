@@ -1,19 +1,25 @@
 package com.example.finalproject.services;
 
+import java.security.Principal;
+
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import com.example.finalproject.entities.TeacherEntity;
 import com.example.finalproject.entities.dto.CredentialsDTO;
+import com.example.finalproject.entities.dto.TeacherDTO;
 import com.example.finalproject.repositories.ParentRepository;
+import com.example.finalproject.repositories.RoleRepository;
 import com.example.finalproject.repositories.StudentRepository;
 import com.example.finalproject.repositories.SubjectRepository;
 import com.example.finalproject.repositories.TeacherRepository;
+import com.example.finalproject.utils.Encryption;
 import com.example.finalproject.utils.RESTError;
 
 @Service
@@ -25,30 +31,82 @@ public class TeacherServiceImpl implements TeacherSerice {
 	private ParentRepository pareRepo;
 	@Autowired
 	private StudentRepository studRepo;
-	
+	@Autowired
+	private RoleRepository roleRepo;
+
+
 	@Override
-	public ResponseEntity<?> addUserAndPass(Integer teacherId, CredentialsDTO credentials) {
-		if(!teacRepo.existsById(teacherId)) {
-			return new ResponseEntity<RESTError>(new RESTError(1, "User not found"), HttpStatus.NOT_FOUND);
+	public ResponseEntity<?> addNewTeacher(TeacherDTO newTeacher) {
+		TeacherEntity teacher = new TeacherEntity();
+		
+		teacher.setFirstName(newTeacher.getFirstName());
+		teacher.setLastName(newTeacher.getLastName());
+		teacher.setDob(newTeacher.getDob());
+		//teacher.setEmail(newTeacher.getEmail());
+		teacher.setRole(roleRepo.findByName("ROLE_TEACHER"));
+		
+		if (!(teacRepo.findByEmail(newTeacher.getEmail()) == null) ||
+				!(pareRepo.findByEmail(newTeacher.getEmail()) == null)) {
+			return new ResponseEntity<RESTError>(new RESTError(2, "Email address already exists"), HttpStatus.UNPROCESSABLE_ENTITY);	
 		}
-		if (!(teacRepo.findByUsername(credentials.getUsername()) == null) || 
-				!(pareRepo.findByUsername(credentials.getUsername()) == null) ||
-				!(studRepo.findByUsername(credentials.getUsername()) == null)) {
+		else {
+			teacher.setEmail(newTeacher.getEmail());
+		}
+		
+		if (!(teacRepo.findByUsername(newTeacher.getUsername()) == null) || 
+				!(pareRepo.findByUsername(newTeacher.getUsername()) == null) ||
+				!(studRepo.findByUsername(newTeacher.getUsername()) == null)) {
 			return new ResponseEntity<RESTError>(new RESTError(2, "Username already exists"), HttpStatus.UNPROCESSABLE_ENTITY);	
 		}
-		
-		if (!(teacRepo.findByPassword(credentials.getPassword()) == null) ||
-				!(pareRepo.findByPassword(credentials.getUsername()) == null) ||
-				!(studRepo.findByPassword(credentials.getUsername()) == null)) {
-			return new ResponseEntity<RESTError>(new RESTError(3, "Password already exists"), HttpStatus.UNPROCESSABLE_ENTITY);
+		else {
+			teacher.setUsername(newTeacher.getUsername());
 		}
 		
-		TeacherEntity teacher = teacRepo.findById(teacherId).get();
-		teacher.setUsername(credentials.getUsername());
-		teacher.setPassword(credentials.getPassword());
+		if (!(newTeacher.getPassword().equals(newTeacher.getConfirmPassword()))) {
+			return new ResponseEntity<RESTError>(new RESTError(3, "Password does not match"), HttpStatus.UNPROCESSABLE_ENTITY);
+		}
+		else {
+			teacher.setPassword(Encryption.getPassEncoded(newTeacher.getPassword()));
+		}
 		
-		return new ResponseEntity<TeacherEntity>(teacRepo.save(teacher),HttpStatus.OK);
+		return new ResponseEntity<TeacherEntity>(teacRepo.save(teacher),HttpStatus.CREATED);
+	}
+	
+	@Override
+	public ResponseEntity<?> changeUserAndPass(CredentialsDTO credentials) {
+		if (teacRepo.findByUsername(credentials.getUsername()) == null) {
+			return new ResponseEntity<RESTError>(new RESTError(1, "User not found"), HttpStatus.NOT_FOUND);
+		}
+	/*	
+		if (!(credentials.getUsername().equals(principal.getName()))) {
+			return new ResponseEntity<RESTError>(new RESTError(10, "Wrong username"), HttpStatus.UNAUTHORIZED);
+		}
+		*/
+		TeacherEntity teacher = teacRepo.findByUsername(credentials.getUsername());
+		
+		// provera da li se slazu sadasnji username i pass
+		if (Encryption.gettPassDecoded(credentials.getPassword(), teacher.getPassword()) == false) {
+			return new ResponseEntity<RESTError>(new RESTError(7, "Wrong password"), HttpStatus.UNPROCESSABLE_ENTITY);
+		}
+		/*if (!(teacher.getPassword().equals(credentials.getPassword()))) {
+			return new ResponseEntity<RESTError>(new RESTError(7, "Wrong password"), HttpStatus.UNPROCESSABLE_ENTITY);
+		}*/
+		// provera za novi username
+		if (!(teacRepo.findByUsername(credentials.getUsernameNew()) == null)
+				|| !(pareRepo.findByUsername(credentials.getUsernameNew()) == null)
+				|| !(studRepo.findByUsername(credentials.getUsernameNew()) == null)) {
+			return new ResponseEntity<RESTError>(new RESTError(2, "Username already exists"), HttpStatus.UNPROCESSABLE_ENTITY);
+		}
+		// provera lsaganja passworda
+		if (!(credentials.getPasswordNew().equals(credentials.getConfirmPassword()))) {
+			return new ResponseEntity<RESTError>(new RESTError(3, "Password does not match"),
+					HttpStatus.UNPROCESSABLE_ENTITY);
+		}
+
+		teacher.setUsername(credentials.getUsernameNew());
+		teacher.setPassword(Encryption.getPassEncoded(credentials.getPassword()));
+
+		return new ResponseEntity<TeacherEntity>(teacRepo.save(teacher), HttpStatus.OK);
 	}
 
-	
 }
