@@ -1,5 +1,6 @@
 package com.example.finalproject.controllers;
 
+import java.security.Principal;
 import java.util.List;
 
 import javax.validation.Valid;
@@ -7,6 +8,7 @@ import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -38,14 +40,16 @@ public class ParentController {
 	@Autowired
 	private RoleRepository roleRepo;
 	
+	@Secured("ROLE_ADMIN")
 	@GetMapping("/")
 	public ResponseEntity<?>  getAllParents() {
 		if(pareRepo.count() == 0) {
 			return new ResponseEntity<RESTError>(new RESTError(4, "List is empty"), HttpStatus.NOT_FOUND);
 		}
-		return new ResponseEntity((List<ParentEntity>) pareRepo.findAll(), HttpStatus.OK);
+		return new ResponseEntity<List<ParentEntity>>((List<ParentEntity>) pareRepo.findAll(), HttpStatus.OK);
 	}
 	
+	@Secured("ROLE_ADMIN")
 	@GetMapping("/{id}")
 	public ResponseEntity<?> getParent(@PathVariable Integer id) {
 		if(!pareRepo.existsById(id)) {
@@ -54,15 +58,10 @@ public class ParentController {
 		return new ResponseEntity<ParentEntity>(pareRepo.findById(id).get(),HttpStatus.OK);
 	}
 	
+	@Secured("ROLE_ADMIN")
 	@PostMapping("/")
 	public ResponseEntity<?> addNewParent(@Valid @RequestBody ParentDTO newParent) {
-		ParentEntity parent = new ParentEntity();
-		parent.setFirstName(newParent.getFirstName());
-		parent.setLastName(newParent.getLastName());
-		parent.setDob(newParent.getDob());
-		parent.setEmail(newParent.getEmail());
-		parent.setRole(roleRepo.findByName("ROLE_PARENT"));
-		return new ResponseEntity<ParentEntity>(pareRepo.save(parent),HttpStatus.CREATED);
+		return pareServ.addNewParent(newParent);
 	}
 
 	@PutMapping("/{id}")
@@ -88,9 +87,9 @@ public class ParentController {
 		return new ResponseEntity<ParentEntity>(parent, HttpStatus.OK);
 	}
 	
-	@PutMapping("/credentials/{parentId}")
-	public ResponseEntity<?> addUserAndPass(@PathVariable Integer parentId, 
-			@Valid @RequestBody CredentialsDTO credentials) {
-		return pareServ.addUserAndPass(parentId, credentials);
+	@Secured("PARENT_ROLE")
+	@PutMapping("/credentials")
+	public ResponseEntity<?> changePassword(@Valid @RequestBody CredentialsDTO credentials, Principal principal) {
+		return pareServ.changePassword(credentials, principal);
 	}
 }

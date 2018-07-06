@@ -14,6 +14,7 @@ import com.example.finalproject.entities.dto.TeacherDTO;
 public interface TeacherSerice {
 
 	ResponseEntity<?> addNewTeacher(TeacherDTO newTeacher);
-	ResponseEntity<?> changeUserAndPass(CredentialsDTO credentials);
+	ResponseEntity<?> changeUserAndPass(CredentialsDTO credentials, Principal principal);
+	ResponseEntity<?> changePassword(CredentialsDTO credentials, Principal principal);
 	
 }

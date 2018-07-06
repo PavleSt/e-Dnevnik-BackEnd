@@ -88,10 +88,19 @@ public class TeacherController {
 		return new ResponseEntity<TeacherEntity>(teacher, HttpStatus.OK);
 	}
 	
+	@Secured("ROLE_ADMIN")
+	@PutMapping("/credentials")
+	public ResponseEntity<?> changeUserAndPass(@Valid @RequestBody CredentialsDTO credentials, Principal principal) {
+		return teacServ.changeUserAndPass(credentials, principal);
+	}
+	
 	@Secured("ROLE_TEACHER")
 	@PutMapping("/credentials")
-	public ResponseEntity<?> changeUserAndPass(@Valid @RequestBody CredentialsDTO credentials) {
-		return teacServ.changeUserAndPass(credentials);
+	public ResponseEntity<?> changePassword(@Valid @RequestBody CredentialsDTO credentials, Principal principal) {
+		return teacServ.changePassword(credentials, principal);
 	}
+	
+	
+	
 	
 }

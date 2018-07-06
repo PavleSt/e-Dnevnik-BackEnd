@@ -27,6 +27,7 @@ public class CredentialsDTO {
 	
 	private String usernameNew;
 	private String passwordNew;
+	
 	public CredentialsDTO() {
 		super();
 		// TODO Auto-generated constructor stub
