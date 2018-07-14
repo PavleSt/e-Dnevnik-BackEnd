@@ -6,4 +6,5 @@ import com.example.finalproject.entities.SubjectEntity;
 
 public interface SubjectRepository extends CrudRepository<SubjectEntity, Integer> {
 
+	SubjectEntity findBySubjectName (String subjectName);
 }

@@ -33,12 +33,27 @@ public class StudentDTO {
 	//@Past
 	@Temporal(TemporalType.DATE)
 	private Date dob;
-	/*
+	
 	// dodaj custom anotaciju za proveru
 	private Integer parentId;
 	// dodaj custom anotaciju za proveru
 	private Integer gradeId;
-	*/
+	
+	
+	@JsonProperty("username")
+	@NotNull(message = "Username must be provided!")
+	@Size(min = 5, max = 15, message = "Username must be between {min} and {max} characters long!")
+	@Pattern(regexp = "^[a-zA-Z0-9]*$")
+	private String username;
+	
+	@JsonProperty("password")
+	@NotNull(message = "Password must be provided!")
+	@Size(min = 5, max = 15, message = "Password must be between {min} and {max} characters long!")
+	@Pattern(regexp = "^[a-zA-Z0-9]*$")
+	private String password;
+	
+	private String confirmPassword;
+	
 	public StudentDTO() {
 		super();
 		// TODO Auto-generated constructor stub
@@ -67,7 +82,7 @@ public class StudentDTO {
 	public void setDob(Date dob) {
 		this.dob = dob;
 	}
-/*
+
 	public Integer getParentId() {
 		return parentId;
 	}
@@ -83,7 +98,30 @@ public class StudentDTO {
 	public void setGradeId(Integer gradeId) {
 		this.gradeId = gradeId;
 	}
-*/
-	
+
+	public String getUsername() {
+		return username;
+	}
+
+	public void setUsername(String username) {
+		this.username = username;
+	}
+
+	public String getPassword() {
+		return password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+	public String getConfirmPassword() {
+		return confirmPassword;
+	}
+
+	public void setConfirmPassword(String confirmPassword) {
+		this.confirmPassword = confirmPassword;
+	}
+
 	
 }

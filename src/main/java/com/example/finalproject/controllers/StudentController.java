@@ -1,5 +1,6 @@
 package com.example.finalproject.controllers;
 
+import java.security.Principal;
 import java.util.List;
 
 import javax.validation.Valid;
@@ -65,25 +66,10 @@ public class StudentController {
 		return new ResponseEntity<RESTError>(new RESTError(1, "User not found"), HttpStatus.NOT_FOUND);
 	}
 
+	@Secured("ROLE_ADMIN")
 	@PostMapping("/")
-	public ResponseEntity<?> addNewStudent(@Valid @RequestBody StudentDTO newStudent,
-			@RequestParam Integer parentId, @RequestParam Integer gradeId){
-		StudentEntity student = new StudentEntity();
-		student.setFirstName(newStudent.getFirstName());
-		student.setLastName(newStudent.getLastName());
-		student.setDob(newStudent.getDob());
-		student.setRole(roleRepo.findByName("ROLE_STUDENT"));
-		if (!pareRepo.existsById(parentId)) {
-			return new ResponseEntity<RESTError>(new RESTError(1, "User not found"), HttpStatus.NOT_FOUND);
-		} else {
-			student.setParent(pareRepo.findById(parentId).get());
-		}
-		if (!gradRepo.existsById(gradeId)) {
-			return new ResponseEntity<RESTError>(new RESTError(1, "User not found"), HttpStatus.NOT_FOUND);
-		} else {
-			student.setGrade(gradRepo.findById(gradeId).get());
-		}
-		return new ResponseEntity<StudentEntity>(studRepo.save(student), HttpStatus.OK);
+	public ResponseEntity<?> addNewStudent(@Valid @RequestBody StudentDTO newStudent){
+		return studServ.addNewStudent(newStudent);
 	}
 
 	@PutMapping("/{id}")
@@ -119,10 +105,17 @@ public class StudentController {
 		return new ResponseEntity<StudentEntity>(student, HttpStatus.OK);
 	}
 	
-	@PutMapping("/credentials/{studentId}")
-	public ResponseEntity<?> addUserAndPass(@PathVariable Integer studentId, 
-			@Valid @RequestBody CredentialsDTO credentials) {
-		return studServ.addUserAndPass(studentId, credentials);
+	@Secured("ROLE_ADMIN")
+	@PutMapping("/credentials")
+	public ResponseEntity<?> changeUserAndPass(@Valid @RequestBody CredentialsDTO credentials, Principal principal) {
+		return studServ.changeUserAndPass(credentials, principal);
 	}
+	
+	@Secured("ROLE_STUDENT")
+	@PutMapping("/credentials/password")
+	public ResponseEntity<?> changePassword(@Valid @RequestBody CredentialsDTO credentials, Principal principal) {
+		return studServ.changePassword(credentials, principal);
+	}
+	
 
 }

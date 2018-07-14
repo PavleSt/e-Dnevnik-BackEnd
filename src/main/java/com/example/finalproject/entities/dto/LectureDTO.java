@@ -1,11 +1,16 @@
 package com.example.finalproject.entities.dto;
 
+import javax.validation.constraints.NotNull;
+
 public class LectureDTO {
 
+	@NotNull(message = "Teacher must be provided!")
 	private Integer teacherId;
 	
+	@NotNull(message = "Subject must be provided!")
 	private Integer subjectId;
 	
+	@NotNull(message = "Grade must be provided!")
 	private Integer gradeId;
 
 	public LectureDTO() {

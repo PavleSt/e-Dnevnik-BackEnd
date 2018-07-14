@@ -23,6 +23,7 @@ import com.fasterxml.jackson.annotation.JsonRootName;
 @JsonIgnoreProperties({ "hibernateLazyInitializer", "handler" })
 public class StudentEntity extends UserEntity {
 
+	
 	public StudentEntity() {
 		super();
 		// TODO Auto-generated constructor stub

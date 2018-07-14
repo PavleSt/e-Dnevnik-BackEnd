@@ -51,7 +51,9 @@ public class TeacherDTO {
 	@Pattern(regexp = "^[a-zA-Z0-9]*$")
 	private String password;
 	
+	@JsonProperty("confirm_password")
 	private String confirmPassword;
+	
 	
 	public TeacherDTO() {
 		super();
@@ -113,5 +115,6 @@ public class TeacherDTO {
 	public void setConfirmPassword(String confirmPassword) {
 		this.confirmPassword = confirmPassword;
 	}
+	
 	
 }

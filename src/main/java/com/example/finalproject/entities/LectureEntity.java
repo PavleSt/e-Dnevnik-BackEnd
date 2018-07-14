@@ -13,6 +13,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Version;
+import javax.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -59,6 +60,7 @@ public class LectureEntity {
 
 	@ManyToOne(cascade = CascadeType.REFRESH, fetch = FetchType.LAZY)
 	@JoinColumn(name = "teacher")
+	@NotNull(message = "Teacher must be provided!")
 	public TeacherEntity teacher;
 
 	//@JsonManagedReference(value = "Teacher - Teahces")
@@ -72,6 +74,7 @@ public class LectureEntity {
 	
 	@ManyToOne(cascade = CascadeType.REFRESH, fetch = FetchType.LAZY)
 	@JoinColumn(name = "subject")
+	@NotNull(message = "Subject must be provided!")
 	public SubjectEntity subject;
 
 	//@JsonManagedReference(value = "Subject - Teaches")
@@ -85,6 +88,7 @@ public class LectureEntity {
 	
 	@ManyToOne(cascade = CascadeType.REFRESH, fetch = FetchType.LAZY)
 	@JoinColumn(name = "grade")
+	@NotNull(message = "Grade must be provided!")
 	public GradeEntity grade;
 
 	//@JsonManagedReference(value = "Grade - Teaches")

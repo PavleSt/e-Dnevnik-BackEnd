@@ -7,6 +7,7 @@ import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -25,6 +26,7 @@ import com.example.finalproject.entities.LectureEntity;
 import com.example.finalproject.repositories.GradeRepository;
 import com.example.finalproject.repositories.SubjectRepository;
 import com.example.finalproject.repositories.TeacherRepository;
+import com.example.finalproject.services.LectureService;
 import com.example.finalproject.utils.RESTError;
 import com.example.finalproject.repositories.LectureRepository;
 
@@ -41,6 +43,8 @@ public class LectureController {
 	private SubjectRepository subjRepo;
 	@Autowired
 	private GradeRepository gradRepo;
+	@Autowired
+	private LectureService lectServ;
 
 	@GetMapping("/")
 	public List<LectureEntity> getAllLectures() {
@@ -55,21 +59,10 @@ public class LectureController {
 		return new ResponseEntity<RESTError>(new RESTError(1, "User not found"), HttpStatus.NOT_FOUND);	
 	}
 	
+	@Secured("ROLE_ADMIN")
 	@PostMapping("/")
 	public ResponseEntity<?> addNewLecture(@Valid @RequestBody LectureDTO newLecture) {
-		TeacherEntity teacher = teacRepo.findById(newLecture.getTeacherId()).get();
-		SubjectEntity subject = subjRepo.findById(newLecture.getSubjectId()).get();
-		GradeEntity grade = gradRepo.findById(newLecture.getGradeId()).get();
-		if (lectRepo.findByTeacherAndSubjectAndGrade(teacRepo.findById(newLecture.getTeacherId()).get(), 
-				subjRepo.findById(newLecture.getSubjectId()).get(), 
-				gradRepo.findById(newLecture.getGradeId()).get()) != null) {
-			return new ResponseEntity<RESTError>(new RESTError(5, "User already exists"), HttpStatus.UNPROCESSABLE_ENTITY);
-		}
-		LectureEntity lecture = new LectureEntity();
-		lecture.setTeacher(teacher);
-		lecture.setSubject(subject);
-		lecture.setGrade(grade);
-		return new ResponseEntity<LectureEntity>(lectRepo.save(lecture),HttpStatus.CREATED);
+		return lectServ.addNewLecture(newLecture);
 	}
 	
 	@PutMapping("/{id}")

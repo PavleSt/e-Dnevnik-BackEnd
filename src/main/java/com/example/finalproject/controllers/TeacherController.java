@@ -73,7 +73,6 @@ public class TeacherController {
 		teacher.setLastName(newTeacher.getLastName());
 		teacher.setDob(newTeacher.getDob());
 		teacher.setEmail(newTeacher.getEmail());
-		// teacher.setPassword(Encryprion.getPasswordEncoded(newTeacher.getPassword());
 		return new ResponseEntity<TeacherEntity>(teacRepo.save(teacher),HttpStatus.OK);
 	}
 	
@@ -95,7 +94,7 @@ public class TeacherController {
 	}
 	
 	@Secured("ROLE_TEACHER")
-	@PutMapping("/credentials")
+	@PutMapping("/credentials/password")
 	public ResponseEntity<?> changePassword(@Valid @RequestBody CredentialsDTO credentials, Principal principal) {
 		return teacServ.changePassword(credentials, principal);
 	}

@@ -88,7 +88,7 @@ public class ParentController {
 	}
 	
 	@Secured("PARENT_ROLE")
-	@PutMapping("/credentials")
+	@PutMapping("/credentials/password")
 	public ResponseEntity<?> changePassword(@Valid @RequestBody CredentialsDTO credentials, Principal principal) {
 		return pareServ.changePassword(credentials, principal);
 	}

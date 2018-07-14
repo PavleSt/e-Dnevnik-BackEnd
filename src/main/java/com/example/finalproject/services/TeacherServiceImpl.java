@@ -39,8 +39,8 @@ public class TeacherServiceImpl implements TeacherSerice {
 		teacher.setFirstName(newTeacher.getFirstName());
 		teacher.setLastName(newTeacher.getLastName());
 		teacher.setDob(newTeacher.getDob());
-		//teacher.setEmail(newTeacher.getEmail());
 		teacher.setRole(roleRepo.findByName("ROLE_TEACHER"));
+		teacher.setDeleted(false);
 		
 		if (!(teacRepo.findByEmail(newTeacher.getEmail()) == null) ||
 				!(pareRepo.findByEmail(newTeacher.getEmail()) == null)) {

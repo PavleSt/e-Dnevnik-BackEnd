@@ -35,13 +35,13 @@ public class GradeController {
 		if (gradRepo.count() == 0) {
 			return new ResponseEntity<RESTError>(new RESTError(4, "List is empty"), HttpStatus.NOT_FOUND);
 		}
-		return new ResponseEntity((List<GradeEntity>) gradRepo.findAll(), HttpStatus.OK);
+		return new ResponseEntity<List<GradeEntity>>((List<GradeEntity>) gradRepo.findAll(), HttpStatus.OK);
 	}
 	
 	@GetMapping("/{id}")
 	public ResponseEntity<?> getGrade(@PathVariable Integer id) {
 		if(!gradRepo.existsById(id)) {
-			return new ResponseEntity<RESTError>(new RESTError(1, "User not found"), HttpStatus.NOT_FOUND);	
+			return new ResponseEntity<RESTError>(new RESTError(1, "Grade not found"), HttpStatus.NOT_FOUND);	
 		}
 		return new ResponseEntity<GradeEntity>(gradRepo.findById(id).get(),HttpStatus.OK);
 	}
@@ -57,7 +57,7 @@ public class GradeController {
 	@PutMapping("/{id}")
 	public ResponseEntity<?> updateGrade(@PathVariable Integer id, @Valid @RequestBody GradeEntity updGrade) {
 		if(!gradRepo.existsById(id)) {
-			return new ResponseEntity<RESTError>(new RESTError(1, "User not found"), HttpStatus.NOT_FOUND);
+			return new ResponseEntity<RESTError>(new RESTError(1, "Grade not found"), HttpStatus.NOT_FOUND);
 		}
 		GradeEntity grade = new GradeEntity();
 		grade.setYear(updGrade.getYear());
@@ -68,7 +68,7 @@ public class GradeController {
 	@DeleteMapping("/{id}")
 	public ResponseEntity<?> deleteGrade(@PathVariable Integer id) {
 		if(!gradRepo.existsById(id)) {
-			return new ResponseEntity<RESTError>(new RESTError(1, "User not found"), HttpStatus.NOT_FOUND);
+			return new ResponseEntity<RESTError>(new RESTError(1, "Grade not found"), HttpStatus.NOT_FOUND);
 		}
 		GradeEntity grade = gradRepo.findById(id).get();
 		gradRepo.deleteById(id);
