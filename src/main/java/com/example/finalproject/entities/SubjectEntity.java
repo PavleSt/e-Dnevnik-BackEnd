@@ -46,7 +46,7 @@ public class SubjectEntity {
 	@Column
 	@JsonProperty("number_of_lectures_per_week")
 	@NotNull(message = "Number of lectures must be provided!")
-	@Min(value = 2, message = "Number of lectures must be greater than or equal to 2")
+	@Min(value = 1, message = "Number of lectures must be greater than or equal to 1")
 	@Max(value = 10, message = "Number of lectures must be less than or equal to 10")
 	private Integer weeklyLectures;
 	

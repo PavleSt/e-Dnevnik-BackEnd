@@ -35,10 +35,12 @@ public class ParentServiceImpl implements ParentService {
 	@Override
 	public ResponseEntity<?> addNewParent(ParentDTO newParent) {
 		ParentEntity parent = new ParentEntity();
+		
 		parent.setFirstName(newParent.getFirstName());
 		parent.setLastName(newParent.getLastName());
 		parent.setDob(newParent.getDob());
 		parent.setRole(roleRepo.findByName("ROLE_PARENT"));
+		parent.setDeleted(false);
 		
 		if (!(pareRepo.findByEmail(newParent.getEmail()) == null) ||
 				!(teacRepo.findByEmail(newParent.getEmail()) == null)) {

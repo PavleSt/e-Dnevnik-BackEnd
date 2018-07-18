@@ -55,6 +55,7 @@ public class ParentDTO {
 	@Pattern(regexp = "^[a-zA-Z0-9]*$")
 	private String password;
 	
+	@JsonProperty("confirm_password")
 	private String confirmPassword;
 	
 	public ParentDTO() {

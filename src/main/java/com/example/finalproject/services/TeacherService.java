@@ -2,19 +2,19 @@ package com.example.finalproject.services;
 
 import java.security.Principal;
 
-import javax.validation.Valid;
-
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestBody;
 
-import com.example.finalproject.entities.TeacherEntity;
 import com.example.finalproject.entities.dto.CredentialsDTO;
 import com.example.finalproject.entities.dto.TeacherDTO;
+import com.example.finalproject.entities.dto.TeacherUpdateDTO;
 
-public interface TeacherSerice {
+public interface TeacherService {
 
 	ResponseEntity<?> addNewTeacher(TeacherDTO newTeacher);
-	ResponseEntity<?> changeUserAndPass(CredentialsDTO credentials, Principal principal);
+	ResponseEntity<?> updateTeacher(TeacherUpdateDTO newTeacher, Integer teacherId);
+	ResponseEntity<?> changeUserAndPass(CredentialsDTO credentials, Integer teacherId);
 	ResponseEntity<?> changePassword(CredentialsDTO credentials, Principal principal);
+	ResponseEntity<?> getAllTeacherSubjects(Integer teacherId);
+	
 	
 }

@@ -41,9 +41,13 @@ public class LectureServiceImpl implements LectureService {
 		SubjectEntity subject = subjRepo.findById(newLecture.getSubjectId()).get();
 		
 		if (!(gradRepo.existsById(newLecture.getGradeId()))) {
-			return new ResponseEntity<RESTError>(new RESTError(1, "Subject not found"), HttpStatus.NOT_FOUND);
+			return new ResponseEntity<RESTError>(new RESTError(1, "Grade not found"), HttpStatus.NOT_FOUND);
 		}
 		GradeEntity grade = gradRepo.findById(newLecture.getGradeId()).get();
+		
+		if (!(subject.getSubjectName().contains(grade.getYear().toString()))) {
+			return new ResponseEntity<RESTError>(new RESTError(5, "Subject is not fit for that grade!"), HttpStatus.UNPROCESSABLE_ENTITY);
+		}
 		
 		if (lectRepo.findByTeacherAndSubjectAndGrade(teacRepo.findById(newLecture.getTeacherId()).get(), 
 				subjRepo.findById(newLecture.getSubjectId()).get(), 

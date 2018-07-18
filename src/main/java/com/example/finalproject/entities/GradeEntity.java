@@ -45,9 +45,8 @@ public class GradeEntity {
 	@Column
 	@JsonProperty("class")
 	@NotNull(message = "Student's class must be provided!")
-	@Min(value = 1, message = "Student's class must be greater than or equal to 1")
-	@Max(value = 3, message = "Student's class must be less than or equal to 3")
-	private Integer classroom;
+	@Pattern(regexp = "^[I]{1,2}$")
+	private String classroom;
 	
 	@Version
 	private Integer version;
@@ -75,11 +74,11 @@ public class GradeEntity {
 		this.year = year;
 	}
 
-	public Integer getClassroom() {
+	public String getClassroom() {
 		return classroom;
 	}
 
-	public void setClassroom(Integer classroom) {
+	public void setClassroom(String classroom) {
 		this.classroom = classroom;
 	}
 

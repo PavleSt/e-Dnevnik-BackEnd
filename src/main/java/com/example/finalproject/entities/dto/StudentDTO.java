@@ -35,8 +35,10 @@ public class StudentDTO {
 	private Date dob;
 	
 	// dodaj custom anotaciju za proveru
+	@JsonProperty("parent_id")
 	private Integer parentId;
 	// dodaj custom anotaciju za proveru
+	@JsonProperty("grade_id")
 	private Integer gradeId;
 	
 	
@@ -52,6 +54,7 @@ public class StudentDTO {
 	@Pattern(regexp = "^[a-zA-Z0-9]*$")
 	private String password;
 	
+	@JsonProperty("confirm_password")
 	private String confirmPassword;
 	
 	public StudentDTO() {

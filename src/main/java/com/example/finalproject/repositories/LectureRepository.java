@@ -2,6 +2,7 @@ package com.example.finalproject.repositories;
 
 import java.util.List;
 
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 
 import com.example.finalproject.entities.GradeEntity;
@@ -15,4 +16,5 @@ public interface LectureRepository extends CrudRepository<LectureEntity, Integer
 			GradeEntity grade);
 	List<LectureEntity> findAllByTeacher (TeacherEntity teacher);
 	List<LectureEntity> findAllBySubject (SubjectEntity subject);
+
 }

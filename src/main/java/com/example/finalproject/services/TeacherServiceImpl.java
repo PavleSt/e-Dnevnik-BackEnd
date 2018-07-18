@@ -1,17 +1,24 @@
 package com.example.finalproject.services;
 
 import java.security.Principal;
+import java.util.ArrayList;
+import java.util.List;
 
+import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import com.example.finalproject.entities.LectureEntity;
 import com.example.finalproject.entities.ParentEntity;
+import com.example.finalproject.entities.SubjectEntity;
 import com.example.finalproject.entities.TeacherEntity;
 import com.example.finalproject.entities.dto.CredentialsDTO;
 import com.example.finalproject.entities.dto.TeacherDTO;
+import com.example.finalproject.entities.dto.TeacherUpdateDTO;
+import com.example.finalproject.repositories.LectureRepository;
 import com.example.finalproject.repositories.ParentRepository;
 import com.example.finalproject.repositories.RoleRepository;
 import com.example.finalproject.repositories.StudentRepository;
@@ -20,7 +27,7 @@ import com.example.finalproject.utils.Encryption;
 import com.example.finalproject.utils.RESTError;
 
 @Service
-public class TeacherServiceImpl implements TeacherSerice {
+public class TeacherServiceImpl implements TeacherService {
 
 	@Autowired
 	private TeacherRepository teacRepo;
@@ -30,6 +37,8 @@ public class TeacherServiceImpl implements TeacherSerice {
 	private StudentRepository studRepo;
 	@Autowired
 	private RoleRepository roleRepo;
+	@Autowired
+	private LectureRepository lectRepo;
 
 
 	@Override
@@ -70,24 +79,13 @@ public class TeacherServiceImpl implements TeacherSerice {
 	}
 	
 	@Override
-	public ResponseEntity<?> changeUserAndPass(CredentialsDTO credentials, Principal principal) {
-		if (teacRepo.findByUsername(credentials.getUsername()) == null) {
+	public ResponseEntity<?> changeUserAndPass(CredentialsDTO credentials, Integer teacherId) {
+		if (teacRepo.findById(teacherId).get() == null) {
 			return new ResponseEntity<RESTError>(new RESTError(1, "User not found"), HttpStatus.NOT_FOUND);
 		}
 		
-		if (!(credentials.getUsername().equals(principal.getName()))) {
-			return new ResponseEntity<RESTError>(new RESTError(10, "Wrong username"), HttpStatus.UNAUTHORIZED);
-		}
+		TeacherEntity teacher = teacRepo.findById(teacherId).get();
 		
-		TeacherEntity teacher = teacRepo.findByUsername(credentials.getUsername());
-		
-		// provera da li se slazu sadasnji username i pass
-		if (Encryption.gettPassDecoded(credentials.getPassword(), teacher.getPassword()) == false) {
-			return new ResponseEntity<RESTError>(new RESTError(7, "Wrong password"), HttpStatus.UNPROCESSABLE_ENTITY);
-		}
-		/*if (!(teacher.getPassword().equals(credentials.getPassword()))) {
-			return new ResponseEntity<RESTError>(new RESTError(7, "Wrong password"), HttpStatus.UNPROCESSABLE_ENTITY);
-		}*/
 		// provera za novi username
 		if (!(teacRepo.findByUsername(credentials.getUsernameNew()) == null)
 				|| !(pareRepo.findByUsername(credentials.getUsernameNew()) == null)
@@ -117,6 +115,10 @@ public class TeacherServiceImpl implements TeacherSerice {
 		}
 		
 		TeacherEntity teacher = teacRepo.findByUsername(credentials.getUsername());
+		// provera da li je korisnik koji pokusava da se uloguje prethodno obrisan
+		if (teacher.getDeleted().equals(true)) {
+			return new ResponseEntity<RESTError>(new RESTError(10, "User account does not exist!"), HttpStatus.UNAUTHORIZED);
+		}
 		// provera da li se slazu sadasnji username i pass
 		if (Encryption.gettPassDecoded(credentials.getPassword(), teacher.getPassword()) == false) {
 			return new ResponseEntity<RESTError>(new RESTError(7, "Wrong password entered"), HttpStatus.UNPROCESSABLE_ENTITY);
@@ -131,4 +133,50 @@ public class TeacherServiceImpl implements TeacherSerice {
 
 		return new ResponseEntity<TeacherEntity>(teacRepo.save(teacher), HttpStatus.OK);
 	}
+
+	@Override
+	public ResponseEntity<?> updateTeacher(TeacherUpdateDTO newTeacher, Integer teacherId) {
+		if(!teacRepo.existsById(teacherId)) {
+			return new ResponseEntity<RESTError>(new RESTError(1, "User not found"), HttpStatus.NOT_FOUND);
+		}
+		TeacherEntity teacher = teacRepo.findById(teacherId).get();
+		teacher.setFirstName(newTeacher.getFirstName());
+		teacher.setLastName(newTeacher.getLastName());
+		teacher.setDob(newTeacher.getDob());
+		if (!(teacher.getEmail().equals(newTeacher.getEmail()))) {
+			if (!(teacRepo.findByEmail(newTeacher.getEmail()) == null) ||
+				!(pareRepo.findByEmail(newTeacher.getEmail()) == null)) {
+				return new ResponseEntity<RESTError>(new RESTError(2, "Email address already exists"), HttpStatus.UNPROCESSABLE_ENTITY);	
+			}
+		}
+		else {
+			teacher.setEmail(newTeacher.getEmail());
+		}
+		return new ResponseEntity<TeacherEntity>(teacRepo.save(teacher),HttpStatus.OK);
 	}
+
+	@Override
+	public ResponseEntity<?> getAllTeacherSubjects(Integer teacherId) {
+		if(!teacRepo.existsById(teacherId)) {
+			return new ResponseEntity<RESTError>(new RESTError(1, "User not found"), HttpStatus.NOT_FOUND);
+		}
+		TeacherEntity teacher = teacRepo.findById(teacherId).get();
+		
+		if (lectRepo.findAllByTeacher(teacher) == null) {
+			return new ResponseEntity<RESTError>(new RESTError(1, "Teacher is not assigned to any lectures"), HttpStatus.NOT_FOUND);
+		}
+		List<LectureEntity> lectures = lectRepo.findAllByTeacher(teacher);
+		
+		List<SubjectEntity> subjects = new ArrayList<SubjectEntity>();
+		for (LectureEntity lect : lectures) {
+			subjects.add(lect.getSubject());
+		}
+		return new ResponseEntity<List<SubjectEntity>>(subjects, HttpStatus.OK);	
+	}
+
+	
+
+
+
+
+}

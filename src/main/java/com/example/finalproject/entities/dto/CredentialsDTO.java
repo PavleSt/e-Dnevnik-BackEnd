@@ -1,6 +1,5 @@
 package com.example.finalproject.entities.dto;
 
-import javax.persistence.Column;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
@@ -23,9 +22,15 @@ public class CredentialsDTO {
 	@Pattern(regexp = "^[a-zA-Z0-9]*$")
 	private String password;
 	
+	@JsonProperty("confirm_password")
+	@NotNull(message = "Password must be confirmed!")
 	private String confirmPassword;
 	
+	@Size(min = 5, max = 15, message = "Username must be between {min} and {max} characters long!")
+	@Pattern(regexp = "^[a-zA-Z0-9]*$")
 	private String usernameNew;
+	@Size(min = 5, max = 15, message = "Password must be between {min} and {max} characters long!")
+	@Pattern(regexp = "^[a-zA-Z0-9]*$")
 	private String passwordNew;
 	
 	public CredentialsDTO() {

@@ -7,6 +7,7 @@ import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -35,7 +36,7 @@ public class SubjectController {
 		if(subjRepo.count() == 0) {
 			return new ResponseEntity<RESTError>(new RESTError(4, "List is empty"), HttpStatus.NOT_FOUND);
 		}
-		return new ResponseEntity((List<SubjectEntity>) subjRepo.findAll(), HttpStatus.OK);
+		return new ResponseEntity<List<SubjectEntity>>((List<SubjectEntity>) subjRepo.findAll(), HttpStatus.OK);
 	}
 	@GetMapping("/{id}")
 	public ResponseEntity<?> getSubject(@PathVariable Integer id) {
@@ -45,9 +46,13 @@ public class SubjectController {
 		return new ResponseEntity<SubjectEntity>(subjRepo.findById(id).get(),HttpStatus.OK);
 	}
 	
+	@Secured("ROLE_ADMIN")
 	@PostMapping("/")
 	public ResponseEntity<?> addNewSubject(@Valid @RequestBody SubjectEntity newSubject) {
 		SubjectEntity subject = new SubjectEntity();
+		if (subjRepo.findBySubjectName(newSubject.getSubjectName()) != null) {
+			return new ResponseEntity<RESTError>(new RESTError(1, "Subject already exists!"), HttpStatus.UNPROCESSABLE_ENTITY);
+		}
 		subject.setSubjectName(newSubject.getSubjectName());
 		subject.setWeeklyLectures(newSubject.getWeeklyLectures());	
 		return new ResponseEntity<SubjectEntity>(subjRepo.save(subject),HttpStatus.CREATED);

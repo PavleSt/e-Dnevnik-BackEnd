@@ -42,6 +42,8 @@ public class StudentServiceImpl implements StudentService {
 		student.setLastName(newStudent.getLastName());
 		student.setDob(newStudent.getDob());
 		student.setRole(roleRepo.findByName("ROLE_STUDENT"));
+		student.setDeleted(false);
+		
 		if (!pareRepo.existsById(newStudent.getParentId())) {
 			return new ResponseEntity<RESTError>(new RESTError(1, "Parent entity not found"), HttpStatus.NOT_FOUND);
 		} else {
