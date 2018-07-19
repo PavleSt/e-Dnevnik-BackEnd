@@ -16,5 +16,7 @@ public interface LectureRepository extends CrudRepository<LectureEntity, Integer
 			GradeEntity grade);
 	List<LectureEntity> findAllByTeacher (TeacherEntity teacher);
 	List<LectureEntity> findAllBySubject (SubjectEntity subject);
+	//List<LectureEntity> findAllByGrade (GradeEntity grade);
+	//List<LectureEntity> findAllBySubject (List<SubjectEntity> subject);
 
 }

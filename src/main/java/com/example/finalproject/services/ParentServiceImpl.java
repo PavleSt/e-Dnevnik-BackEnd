@@ -11,6 +11,7 @@ import com.example.finalproject.entities.ParentEntity;
 import com.example.finalproject.entities.TeacherEntity;
 import com.example.finalproject.entities.dto.CredentialsDTO;
 import com.example.finalproject.entities.dto.ParentDTO;
+import com.example.finalproject.entities.dto.ParentUpdateDTO;
 import com.example.finalproject.entities.dto.TeacherDTO;
 import com.example.finalproject.repositories.ParentRepository;
 import com.example.finalproject.repositories.RoleRepository;
@@ -35,21 +36,18 @@ public class ParentServiceImpl implements ParentService {
 	@Override
 	public ResponseEntity<?> addNewParent(ParentDTO newParent) {
 		ParentEntity parent = new ParentEntity();
-		
 		parent.setFirstName(newParent.getFirstName());
 		parent.setLastName(newParent.getLastName());
 		parent.setDob(newParent.getDob());
 		parent.setRole(roleRepo.findByName("ROLE_PARENT"));
 		parent.setDeleted(false);
-		
 		if (!(pareRepo.findByEmail(newParent.getEmail()) == null) ||
 				!(teacRepo.findByEmail(newParent.getEmail()) == null)) {
 			return new ResponseEntity<RESTError>(new RESTError(2, "Email address already exists"), HttpStatus.UNPROCESSABLE_ENTITY);	
 		}
 		else {
 			parent.setEmail(newParent.getEmail());
-		}
-		
+		}		
 		if (!(pareRepo.findByUsername(newParent.getUsername()) == null) || 
 				!(teacRepo.findByUsername(newParent.getUsername()) == null) ||
 				!(studRepo.findByUsername(newParent.getUsername()) == null)) {
@@ -57,30 +55,29 @@ public class ParentServiceImpl implements ParentService {
 		}
 		else {
 			parent.setUsername(newParent.getUsername());
-		}
-		
+		}		
 		if (!(newParent.getPassword().equals(newParent.getConfirmPassword()))) {
 			return new ResponseEntity<RESTError>(new RESTError(3, "Password does not match"), HttpStatus.UNPROCESSABLE_ENTITY);
 		}
 		else {
 			parent.setPassword(Encryption.getPassEncoded(newParent.getPassword()));
-		}
-		
+		}		
 		return new ResponseEntity<ParentEntity>(pareRepo.save(parent),HttpStatus.CREATED);
 	}
-	
-	
+		
 	@Override
 	public ResponseEntity<?> changePassword(CredentialsDTO credentials, Principal principal) {
 		if (pareRepo.findByUsername(credentials.getUsername()) == null) {
 			return new ResponseEntity<RESTError>(new RESTError(1, "User not found"), HttpStatus.NOT_FOUND);
-		}
-		
+		}	
 		if (!(credentials.getUsername().equals(principal.getName()))) {
 			return new ResponseEntity<RESTError>(new RESTError(10, "Wrong username entered"), HttpStatus.UNAUTHORIZED);
-		}
-		
+		}	
 		ParentEntity parent = pareRepo.findByUsername(credentials.getUsername());
+		// provera da li je korisnik koji pokusava da se uloguje prethodno obrisan
+		if (parent.getDeleted().equals(true)) {
+			return new ResponseEntity<RESTError>(new RESTError(10, "User account does not exist!"), HttpStatus.UNAUTHORIZED);
+		}		
 		// provera da li se slazu sadasnji username i pass
 		if (Encryption.gettPassDecoded(credentials.getPassword(), parent.getPassword()) == false) {
 			return new ResponseEntity<RESTError>(new RESTError(7, "Wrong password entered"), HttpStatus.UNPROCESSABLE_ENTITY);
@@ -90,10 +87,30 @@ public class ParentServiceImpl implements ParentService {
 			return new ResponseEntity<RESTError>(new RESTError(3, "Password does not match"),
 					HttpStatus.UNPROCESSABLE_ENTITY);
 		}
-
 		parent.setPassword(Encryption.getPassEncoded(credentials.getPasswordNew()));
-
 		return new ResponseEntity<ParentEntity>(pareRepo.save(parent), HttpStatus.OK);
 	}
 
+	@Override
+	public ResponseEntity<?> updateParent(ParentUpdateDTO newParent, Integer parentId) {
+		if(!pareRepo.existsById(parentId)) {
+			return new ResponseEntity<RESTError>(new RESTError(1, "User not found"), HttpStatus.NOT_FOUND);
+		}
+		ParentEntity parent = pareRepo.findById(parentId).get();
+		parent.setFirstName(newParent.getFirstName());
+		parent.setLastName(newParent.getLastName());
+		parent.setDob(newParent.getDob());
+		if (!(parent.getEmail().equals(newParent.getEmail()))) {
+			if (!(pareRepo.findByEmail(newParent.getEmail()) == null) ||
+				!(teacRepo.findByEmail(newParent.getEmail()) == null)) {
+				return new ResponseEntity<RESTError>(new RESTError(2, "Email address already exists"), HttpStatus.UNPROCESSABLE_ENTITY);	
+			}
+		}
+		else {
+			parent.setEmail(newParent.getEmail());
+		}
+		return new ResponseEntity<ParentEntity>(pareRepo.save(parent),HttpStatus.OK);
+	}
+
+	
 }

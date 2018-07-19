@@ -56,6 +56,7 @@ public class ParentDTO {
 	private String password;
 	
 	@JsonProperty("confirm_password")
+	@NotNull(message = "Password must be confirmed!")
 	private String confirmPassword;
 	
 	public ParentDTO() {

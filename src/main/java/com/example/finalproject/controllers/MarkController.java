@@ -71,11 +71,13 @@ public class MarkController {
 	public ResponseEntity<?> getAllTeacherMarks(Principal principal) {
 		TeacherEntity teacher = teacRepo.findByUsername(principal.getName());
 		List<LectureEntity> lectures = lectRepo.findAllByTeacher(teacher);
+		List<MarkEntity> marks = markRepo.findAllByLecture(lectures);
 		if (markRepo.findAllByLecture(lectures) == null) {
 			return new ResponseEntity<RESTError>(new RESTError(1, "List is empty"), HttpStatus.NOT_FOUND);
 		}
 		
-		return new ResponseEntity<List<MarkEntity>>((List<MarkEntity>) markRepo.findAllByLecture(lectures),HttpStatus.OK);
+		return (ResponseEntity<?>) marks;
+		//return new ResponseEntity<List<MarkEntity>>((List<MarkEntity>) markRepo.findAllByLecture(lectures),HttpStatus.OK);
 	}
 	
 	@Secured("ROLE_TEACHER")

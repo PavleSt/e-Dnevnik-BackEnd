@@ -16,16 +16,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.finalproject.entities.GradeEntity;
-import com.example.finalproject.entities.ParentEntity;
 import com.example.finalproject.entities.StudentEntity;
 import com.example.finalproject.entities.dto.CredentialsDTO;
-import com.example.finalproject.entities.dto.ParentDTO;
 import com.example.finalproject.entities.dto.StudentDTO;
+import com.example.finalproject.entities.dto.StudentUpdateDTO;
 import com.example.finalproject.repositories.GradeRepository;
 import com.example.finalproject.repositories.ParentRepository;
 import com.example.finalproject.repositories.RoleRepository;
@@ -49,21 +45,30 @@ public class StudentController {
 	private RoleRepository roleRepo;
 	
 	@Secured("ROLE_ADMIN")
-	@GetMapping("/")
-	public ResponseEntity<?> getAllStudents() {
+	@GetMapping("/active")
+	public ResponseEntity<?> getAllStudentsActive() {
 		if (studRepo.count() == 0) {
 			return new ResponseEntity<RESTError>(new RESTError(4, "List is empty"), HttpStatus.NOT_FOUND);
 		}
-		return new ResponseEntity<List<StudentEntity>>((List<StudentEntity>) studRepo.findAll(), HttpStatus.OK);
+		return new ResponseEntity<List<StudentEntity>>((List<StudentEntity>) studRepo.findAllByDeleted(false), HttpStatus.OK);
 	}
-
+	
+	@Secured("ROLE_ADMIN")
+	@GetMapping("/deleted")
+	public ResponseEntity<?> getAllStudentsDeleted() {
+		if (studRepo.count() == 0) {
+			return new ResponseEntity<RESTError>(new RESTError(4, "List is empty"), HttpStatus.NOT_FOUND);
+		}
+		return new ResponseEntity<List<StudentEntity>>((List<StudentEntity>) studRepo.findAllByDeleted(true), HttpStatus.OK);
+	}
+	
 	@Secured("ROLE_ADMIN")
 	@GetMapping("/{id}")
 	public ResponseEntity<?> getStudent(@PathVariable Integer id) {
-		if (studRepo.existsById(id)) {
-			return new ResponseEntity<StudentEntity>(studRepo.findById(id).get(), HttpStatus.OK);
+		if (!studRepo.existsById(id)) {
+			return new ResponseEntity<RESTError>(new RESTError(1, "User not found"), HttpStatus.NOT_FOUND);	
 		}
-		return new ResponseEntity<RESTError>(new RESTError(1, "User not found"), HttpStatus.NOT_FOUND);
+		return new ResponseEntity<StudentEntity>(studRepo.findById(id).get(), HttpStatus.OK);
 	}
 
 	@Secured("ROLE_ADMIN")
@@ -72,27 +77,9 @@ public class StudentController {
 		return studServ.addNewStudent(newStudent);
 	}
 
-	@PutMapping("/{id}")
-	public ResponseEntity<?> updateStudent(@PathVariable Integer id, @Valid @RequestBody StudentDTO newStudent,
-			@RequestParam Integer parentId, @RequestParam Integer gradeId) {
-		StudentEntity student = studRepo.findById(id).get();
-		if (!studRepo.existsById(id)) {
-			return new ResponseEntity<RESTError>(new RESTError(1, "User not found"), HttpStatus.NOT_FOUND);
-		}
-		student.setFirstName(newStudent.getFirstName());
-		student.setLastName(newStudent.getLastName());
-		student.setDob(newStudent.getDob());
-		if (!pareRepo.existsById(parentId)) {
-			return new ResponseEntity<RESTError>(new RESTError(1, "User not found"), HttpStatus.NOT_FOUND);
-		} else {
-			student.setParent(pareRepo.findById(parentId).get());
-		}
-		if (!gradRepo.existsById(gradeId)) {
-			return new ResponseEntity<RESTError>(new RESTError(1, "User not found"), HttpStatus.NOT_FOUND);
-		} else {
-			student.setGrade(gradRepo.findById(gradeId).get());
-		}
-		return new ResponseEntity<StudentEntity>(studRepo.save(student), HttpStatus.OK);
+	@PutMapping("/{studentId}")
+	public ResponseEntity<?> updateStudent(@PathVariable Integer studentId, @Valid @RequestBody StudentUpdateDTO newStudent) {
+		return studServ.updateStudent(newStudent, studentId);
 	}
 
 	@DeleteMapping("/{id}")
@@ -104,17 +91,39 @@ public class StudentController {
 		pareRepo.deleteById(id);
 		return new ResponseEntity<StudentEntity>(student, HttpStatus.OK);
 	}
-	
+/*
 	@Secured("ROLE_ADMIN")
 	@PutMapping("/credentials")
 	public ResponseEntity<?> changeUserAndPass(@Valid @RequestBody CredentialsDTO credentials, Principal principal) {
 		return studServ.changeUserAndPass(credentials, principal);
 	}
-	
+*/	
 	@Secured("ROLE_STUDENT")
 	@PutMapping("/credentials/password")
 	public ResponseEntity<?> changePassword(@Valid @RequestBody CredentialsDTO credentials, Principal principal) {
 		return studServ.changePassword(credentials, principal);
+	}
+	
+	@Secured("ROLE_ADMIN")
+	@PutMapping("/delete-logical/{id}")
+	public ResponseEntity<?> deleteTeacherLogical(@PathVariable Integer id) {
+		if(!studRepo.existsById(id)) {
+			return new ResponseEntity<RESTError>(new RESTError(1, "User not found"), HttpStatus.NOT_FOUND);
+		}
+		StudentEntity student = studRepo.findById(id).get();
+		student.setDeleted(true);
+		return new ResponseEntity<StudentEntity>(studRepo.save(student), HttpStatus.OK);
+	}
+	
+	@Secured("ROLE_ADMIN")
+	@DeleteMapping("/delete-permanent{id}")
+	public ResponseEntity<?> deleteTeacherPhisically(@PathVariable Integer id) {
+		if(!studRepo.existsById(id)) {
+			return new ResponseEntity<RESTError>(new RESTError(1, "User not found"), HttpStatus.NOT_FOUND);
+		}
+		StudentEntity student = studRepo.findById(id).get();
+		studRepo.deleteById(id);
+		return new ResponseEntity<StudentEntity>(student, HttpStatus.OK);
 	}
 	
 

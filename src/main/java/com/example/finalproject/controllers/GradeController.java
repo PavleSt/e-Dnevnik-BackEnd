@@ -65,15 +65,5 @@ public class GradeController {
 		return new ResponseEntity<GradeEntity>(gradRepo.save(grade),HttpStatus.OK);
 	}
 	
-	@DeleteMapping("/{id}")
-	public ResponseEntity<?> deleteGrade(@PathVariable Integer id) {
-		if(!gradRepo.existsById(id)) {
-			return new ResponseEntity<RESTError>(new RESTError(1, "Grade not found"), HttpStatus.NOT_FOUND);
-		}
-		GradeEntity grade = gradRepo.findById(id).get();
-		gradRepo.deleteById(id);
-		return new ResponseEntity<GradeEntity>(grade, HttpStatus.OK);
-	}
-	
 	
 }

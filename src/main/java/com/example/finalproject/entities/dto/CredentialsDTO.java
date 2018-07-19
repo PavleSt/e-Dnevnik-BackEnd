@@ -15,7 +15,6 @@ public class CredentialsDTO {
 	@Pattern(regexp = "^[a-zA-Z0-9]*$")
 	private String username;
 	
-
 	@JsonProperty("password")
 	@NotNull(message = "Password must be provided!")
 	@Size(min = 5, max = 15, message = "Password must be between {min} and {max} characters long!")
@@ -69,8 +68,4 @@ public class CredentialsDTO {
 	}
 
 
-	
-
-	
-	
 }

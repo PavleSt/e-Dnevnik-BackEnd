@@ -100,7 +100,7 @@ public class TeacherController {
 	
 	@Secured("ROLE_ADMIN")
 	@GetMapping("/subjects/{teacherId}")
-	public ResponseEntity<?> gettAllTeacherSubjects(@PathVariable Integer teacherId) {
+	public ResponseEntity<?> returnAllTeacherSubjects(@PathVariable Integer teacherId) {
 			return teacServ.getAllTeacherSubjects(teacherId);
 	}
 	
@@ -112,6 +112,19 @@ public class TeacherController {
 		}
 		TeacherEntity teacher = teacRepo.findById(id).get();
 		teacher.setDeleted(true);
+		teacher.setUsername("locked9"+teacher.getUsername());
+		return new ResponseEntity<TeacherEntity>(teacRepo.save(teacher), HttpStatus.OK);
+	}
+	
+	@Secured("ROLE_ADMIN")
+	@PutMapping("/undo-logical/{id}")
+	public ResponseEntity<?> undoTeacherLogical(@PathVariable Integer id) {
+		if(!teacRepo.existsById(id)) {
+			return new ResponseEntity<RESTError>(new RESTError(1, "User not found"), HttpStatus.NOT_FOUND);
+		}
+		TeacherEntity teacher = teacRepo.findById(id).get();
+		teacher.setDeleted(false);
+		teacher.setUsername(teacher.getUsername().substring(7));
 		return new ResponseEntity<TeacherEntity>(teacRepo.save(teacher), HttpStatus.OK);
 	}
 	

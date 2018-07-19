@@ -15,7 +15,6 @@ public interface TeacherRepository extends CrudRepository<TeacherEntity, Integer
 	TeacherEntity findByPassword (String password);
 	TeacherEntity findByEmail (String email);
 	//TeacherEntity existsByUsername (String username);
-	
 	List<TeacherEntity> findAllByDeleted (Boolean deleted);
 	
 
