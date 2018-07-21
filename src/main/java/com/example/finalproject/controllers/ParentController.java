@@ -69,7 +69,7 @@ public class ParentController {
 	}
 	
 	@Secured("ROLE_ADMIN")
-	@PostMapping("/")
+	@PostMapping("/add-parent")
 	public ResponseEntity<?> addNewParent(@Valid @RequestBody ParentDTO newParent) {
 		return pareServ.addNewParent(newParent);
 	}

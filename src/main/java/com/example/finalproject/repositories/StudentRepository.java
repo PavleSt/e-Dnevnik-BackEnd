@@ -13,5 +13,5 @@ public interface StudentRepository extends CrudRepository<StudentEntity, Integer
 	StudentEntity findByUsername (String username);
 	List<StudentEntity> findAllByDeleted(Boolean deleted);
 	StudentEntity findByFirstNameAndLastNameAndGrade (String firstName, String lastName, GradeEntity grade);
-	//StudentEntity findByGrade (GradeEntity grade);
+	List<StudentEntity> findByGrade (GradeEntity grade);
 }

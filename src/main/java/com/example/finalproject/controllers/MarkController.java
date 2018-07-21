@@ -2,6 +2,7 @@ package com.example.finalproject.controllers;
 
 import java.security.Principal;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.validation.Valid;
@@ -71,27 +72,38 @@ public class MarkController {
 	public ResponseEntity<?> getAllTeacherMarks(Principal principal) {
 		TeacherEntity teacher = teacRepo.findByUsername(principal.getName());
 		List<LectureEntity> lectures = lectRepo.findAllByTeacher(teacher);
-		List<MarkEntity> marks = markRepo.findAllByLecture(lectures);
-		if (markRepo.findAllByLecture(lectures) == null) {
-			return new ResponseEntity<RESTError>(new RESTError(1, "List is empty"), HttpStatus.NOT_FOUND);
+		List<MarkEntity> marks = new ArrayList<MarkEntity>();
+		for (LectureEntity lectureEntity : lectures) {
+			marks.addAll(markRepo.findAllByLecture(lectureEntity));
+			
+			
 		}
 		
-		return (ResponseEntity<?>) marks;
-		//return new ResponseEntity<List<MarkEntity>>((List<MarkEntity>) markRepo.findAllByLecture(lectures),HttpStatus.OK);
+		/*if (markRepo.findAllByLecture(lectureEntity) == null) {
+			return new ResponseEntity<RESTError>(new RESTError(1, "List is empty"), HttpStatus.NOT_FOUND);
+		}*/
+		
+		return new ResponseEntity<List<MarkEntity>>(marks,HttpStatus.OK);
 	}
-	
+/*	
 	@Secured("ROLE_TEACHER")
 	@GetMapping("/by-subject")
 	public ResponseEntity<?> getAllSubjectMarks(Principal principal) {
 		TeacherEntity teacher = teacRepo.findByUsername(principal.getName());
-		List<LectureEntity> lectures = lectRepo.findAllByTeacher(teacher);
-		if (markRepo.findAllByLecture(lectures) == null) {
-			return new ResponseEntity<RESTError>(new RESTError(1, "List is empty"), HttpStatus.NOT_FOUND);
+		List<LectureEntity> lectures = lectRepo.findAllBySubject(subject);	
+		List<MarkEntity> marks = new ArrayList<MarkEntity>();
+		for (LectureEntity lectureEntity : lectures) {
+			marks.addAll(markRepo.findAllByLecture(lectureEntity));
+			
+			
 		}
+		//if (markRepo.findAllByLecture(lectures) == null) {
+	//	return new ResponseEntity<RESTError>(new RESTError(1, "List is empty"), HttpStatus.NOT_FOUND);
+		//}
 		
-		return new ResponseEntity<List<MarkEntity>>((List<MarkEntity>) markRepo.findAllByLecture(lectures),HttpStatus.OK);
-	}
-	
+		return new ResponseEntity<List<MarkEntity>>(marks,HttpStatus.OK);
+	}*/	
+
 	@Secured("ROLE_STUDENT")
 	@GetMapping("/by-student")
 	public ResponseEntity<?> getAllStudentMarks(Principal principal) {	
@@ -104,7 +116,7 @@ public class MarkController {
 	
 	@Secured("ROLE_ADMIN")
 	@GetMapping("/by-grade")
-	public ResponseEntity<?> getAllGradeMarks(@PathVariable Integer year, @PathVariable Integer classroom) {	
+	public ResponseEntity<?> getAllGradeMarks(@PathVariable Integer year, @PathVariable String classroom) {	
 		GradeEntity grade = gradRepo.findByYearAndClassroom(year, classroom);
 		if (markRepo.findAllByLecture(grade) == null) {
 			return new ResponseEntity<RESTError>(new RESTError(1, "List is empty"), HttpStatus.NOT_FOUND);
@@ -114,7 +126,7 @@ public class MarkController {
 	
 	
 	@Secured("ROLE_TEACHER")
-	@PostMapping("/")
+	@PostMapping("/add-mark")
 	public ResponseEntity<?> addNewMark(@Valid @RequestBody MarkDTO newMark, Principal principal) {
 		return markServ.addNewMark(newMark, principal);
 	}

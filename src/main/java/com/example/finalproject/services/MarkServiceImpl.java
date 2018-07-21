@@ -41,7 +41,7 @@ public class MarkServiceImpl implements MarkService {
 	private SubjectRepository subjRepo;
 	@Autowired
 	private EmailService emaiServ;
-
+/*
 	@Override
 	public ResponseEntity<?> addNewMark(MarkDTO newMark, Principal principal) {
 		
@@ -97,9 +97,59 @@ public class MarkServiceImpl implements MarkService {
 		}
 		return new ResponseEntity<MarkEntity>(markRepo.save(mark),HttpStatus.CREATED);
 	}	
+*/
 
-}
+
+	@Override
+	public ResponseEntity<?> addNewMark(MarkDTO newMark, Principal principal) {
+		
+		MarkEntity mark = new MarkEntity();
+		
 	
+	
+		
+		if (teacRepo.findByUsername(principal.getName()) == null) {
+			return new ResponseEntity<RESTError>(new RESTError(1, "Teacher not found"), HttpStatus.NOT_FOUND);	
+		}
+		TeacherEntity teacher = teacRepo.findByUsername(principal.getName());
+		
+	//	SubjectEntity subject = subjRepo.findBySubjectName(newMark.getSubjectName());
+		
+		if (lectRepo.findById(newMark.getLectureId()) == null) {
+			return new ResponseEntity<RESTError>(new RESTError(1, "Lecture not found"), HttpStatus.NOT_FOUND);
+		}
+		LectureEntity lecture = lectRepo.findById(newMark.getLectureId()).get();
+		
+		if(!lecture.getTeacher().getId().equals(teacher.getId())) {
+			return new ResponseEntity<RESTError>(new RESTError(1, "Lecture doesn't belog to teacher"), HttpStatus.NOT_FOUND);
+		}
+		
+		GradeEntity grade = gradRepo.findById(lecture.getGrade().getId()).get();
+		
+		
+		StudentEntity student = studRepo.findById(newMark.getStudentId()).get();
+	
+		
+		if (!(lecture.getGrade().equals(student.getGrade()))) {
+			return new ResponseEntity<RESTError>(new RESTError(6, "Teacher can only mark a student which is taking his course"
+					+ "!"),
+					HttpStatus.BAD_REQUEST);
+		}
+		mark.setLecture(lecture);
+		mark.setMarkNo(newMark.getMarkNo());
+		mark.setMarkType(newMark.getMarkType());
+		mark.setEvaluationDate(ZonedDateTime.now());
+		mark.setStudent(student);
+		
+		/*try {
+			emaiServ.sendTemplateMessagesVoucher(student, teacher, subject, mark);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}*/
+		return new ResponseEntity<MarkEntity>(markRepo.save(mark),HttpStatus.CREATED);
+	
+}
+}
 	
 
 

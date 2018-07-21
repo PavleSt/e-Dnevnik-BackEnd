@@ -7,6 +7,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
+import com.example.finalproject.entities.LectureEntity;
 import com.example.finalproject.entities.enums.EMarkType;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -35,13 +36,17 @@ public class MarkDTO {
 	@JsonProperty("year_of_school")
 	private Integer gradeYear;
 	@JsonProperty("classroom")
-	private Integer gradeClassrom;
+	private String gradeClassrom;
 	
 	@JsonProperty("teacher_username")
 	private String teacherUsername;
 	
 	@JsonProperty("subject_name")
 	private String subjectName;
+	
+	private Integer lectureId;
+	
+	private Integer studentId;
 
 	public MarkDTO() {
 		super();
@@ -96,11 +101,11 @@ public class MarkDTO {
 		this.gradeYear = gradeYear;
 	}
 
-	public Integer getGradeClassrom() {
+	public String getGradeClassrom() {
 		return gradeClassrom;
 	}
 
-	public void setGradeClassrom(Integer gradeClassrom) {
+	public void setGradeClassrom(String gradeClassrom) {
 		this.gradeClassrom = gradeClassrom;
 	}
 
@@ -120,5 +125,24 @@ public class MarkDTO {
 		this.subjectName = subjectName;
 	}
 
+	public Integer getLectureId() {
+		return lectureId;
+	}
+
+	public void setLectureId(Integer lectureId) {
+		this.lectureId = lectureId;
+	}
+
+	public Integer getStudentId() {
+		return studentId;
+	}
+
+	public void setStudentId(Integer studentId) {
+		this.studentId = studentId;
+	}
+
+	
+
+	
 	
 }

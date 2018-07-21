@@ -75,7 +75,7 @@ public class TeacherController {
 	}
 	
 	@Secured("ROLE_ADMIN")
-	@PostMapping("/")
+	@PostMapping("/add-teacher")
 	public ResponseEntity<?> addNewTeacher(@Valid @RequestBody TeacherDTO newTeacher) {
 		return teacServ.addNewTeacher(newTeacher);
 	}

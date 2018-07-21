@@ -17,7 +17,7 @@ public interface MarkRepository extends CrudRepository<MarkEntity, Integer> {
 
 	List<MarkEntity> findAllByStudent (StudentEntity student);
 	
-	List<MarkEntity> findAllByLecture (List<LectureEntity> lectures);
+	List<MarkEntity> findAllByLecture (LectureEntity lecture);
 	List<MarkEntity> findAllByLecture (GradeEntity grade);
 	List<MarkEntity> findAllByLecture (SubjectEntity subject);
 }

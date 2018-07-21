@@ -6,5 +6,5 @@ import com.example.finalproject.entities.GradeEntity;
 
 public interface GradeRepository extends CrudRepository<GradeEntity, Integer> {
 
-	GradeEntity findByYearAndClassroom (Integer year, Integer classroom);
+	GradeEntity findByYearAndClassroom (Integer year, String classroom);
 }

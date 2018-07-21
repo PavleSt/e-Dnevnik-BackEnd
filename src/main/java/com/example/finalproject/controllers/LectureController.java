@@ -1,5 +1,6 @@
 package com.example.finalproject.controllers;
 
+import java.security.Principal;
 import java.util.List;
 
 import javax.validation.Valid;
@@ -93,4 +94,11 @@ public class LectureController {
 				newLecture.getSubjectId(), newLecture.getGradeId());
 		return lecture;
 	} */
+	
+	@Secured("ROLE_TEACHER")
+	@GetMapping("/by-teacher")
+	public List<LectureEntity> getAllLecturesByTeacher(Principal principal) {
+		TeacherEntity teacher = teacRepo.findByUsername(principal.getName());
+		return  lectRepo.findAllByTeacher(teacher);
+	}
 }

@@ -23,10 +23,14 @@ import javax.validation.constraints.Size;
 
 import org.hibernate.annotations.GeneratorType;
 
+import com.example.finalproject.utils.CustomDateDeserializer;
+import com.example.finalproject.utils.CustomDateSerializer;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 @Entity
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
@@ -57,6 +61,8 @@ public abstract class UserEntity {
 	@JsonProperty("date_of_birth")
 	@NotNull(message = "Date of birth must be provided!")
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
+	@JsonDeserialize(using = CustomDateDeserializer.class)
+	@JsonSerialize(using = CustomDateSerializer.class)
 	//@Pattern(regexp = "^(0[1-9]|[12][0-9]|3[01])[-](0[1-9]|1[012])[-](19|20)\\d\\d$")
 	//@Past
 	@Temporal(TemporalType.DATE)
