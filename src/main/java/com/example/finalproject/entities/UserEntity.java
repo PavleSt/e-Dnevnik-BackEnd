@@ -23,8 +23,6 @@ import javax.validation.constraints.Size;
 
 import org.hibernate.annotations.GeneratorType;
 
-import com.example.finalproject.utils.CustomDateDeserializer;
-import com.example.finalproject.utils.CustomDateSerializer;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;

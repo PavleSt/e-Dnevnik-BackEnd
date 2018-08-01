@@ -160,7 +160,7 @@ public class TeacherController {
 	
 /*
 	@Secured("ROLE_TEACHER")
-	@GetMapping("/just-checkig-principal")
+	@GetMapping("/just-checking-principal")
 	public TeacherEntity checkPrincipal(Principal principal) {
 		TeacherEntity teacher = teacRepo.findByUsername(principal.getName());
 		return teacher;

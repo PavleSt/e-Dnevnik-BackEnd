@@ -77,7 +77,7 @@ public class SubjectController {
 			return subjServ.getAllSubjectTeachers(subjectId);
 	}
 /*	
-	//str.substring(0, str.length() - 2);
+
 	@Secured("ROLE_ADMIN")
 	@GetMapping("/teachers/subject-root/{subjecName}")
 	public ResponseEntity<?> returnAllSubjectTeachers2(@PathVariable String subjectName) {
