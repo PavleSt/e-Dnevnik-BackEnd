@@ -67,17 +67,14 @@ public class ParentServiceImpl implements ParentService {
 		
 	@Override
 	public ResponseEntity<?> changePassword(CredentialsDTO credentials, Principal principal) {
-		if (pareRepo.findByUsername(credentials.getUsername()) == null) {
-			return new ResponseEntity<RESTError>(new RESTError(1, "User not found"), HttpStatus.NOT_FOUND);
-		}	
-		if (!(credentials.getUsername().equals(principal.getName()))) {
-			return new ResponseEntity<RESTError>(new RESTError(10, "Wrong username entered"), HttpStatus.UNAUTHORIZED);
-		}	
-		ParentEntity parent = pareRepo.findByUsername(credentials.getUsername());
-		// provera da li je korisnik koji pokusava da se uloguje prethodno obrisan
-		if (parent.getDeleted().equals(true)) {
-			return new ResponseEntity<RESTError>(new RESTError(10, "User account does not exist!"), HttpStatus.UNAUTHORIZED);
-		}		
+		ParentEntity parent = pareRepo.findByUsername(principal.getName());
+		
+		if (parent.getUsername().equals(credentials.getUsername())) {
+			parent.setUsername(credentials.getUsername());
+		} else {
+			return new ResponseEntity<RESTError>(new RESTError(7, "Incorect username"), HttpStatus.UNPROCESSABLE_ENTITY);
+		}
+
 		// provera da li se slazu sadasnji username i pass
 		if (Encryption.gettPassDecoded(credentials.getPassword(), parent.getPassword()) == false) {
 			return new ResponseEntity<RESTError>(new RESTError(7, "Wrong password entered"), HttpStatus.UNPROCESSABLE_ENTITY);
@@ -106,10 +103,30 @@ public class ParentServiceImpl implements ParentService {
 				return new ResponseEntity<RESTError>(new RESTError(2, "Email address already exists"), HttpStatus.UNPROCESSABLE_ENTITY);	
 			}
 		}
-		else {
-			parent.setEmail(newParent.getEmail());
-		}
+		parent.setEmail(newParent.getEmail());
 		return new ResponseEntity<ParentEntity>(pareRepo.save(parent),HttpStatus.OK);
+	}
+	
+	@Override
+	public ResponseEntity<?> changeUserAndPass(CredentialsDTO credentials, Integer parentId) {
+		if (pareRepo.findById(parentId).get() == null) {
+			return new ResponseEntity<RESTError>(new RESTError(1, "User not found"), HttpStatus.NOT_FOUND);
+		}
+		ParentEntity parent = pareRepo.findById(parentId).get();
+		// provera za novi username
+		if (!(pareRepo.findByUsername(credentials.getUsername()) == null)
+				|| !(teacRepo.findByUsername(credentials.getUsername()) == null)
+				|| !(studRepo.findByUsername(credentials.getUsername()) == null)) {
+			return new ResponseEntity<RESTError>(new RESTError(2, "Username already exists"), HttpStatus.UNPROCESSABLE_ENTITY);
+		}
+		// provera lsaganja passworda
+		if (!(credentials.getPassword().equals(credentials.getConfirmPassword()))) {
+			return new ResponseEntity<RESTError>(new RESTError(3, "Password does not match"),
+					HttpStatus.UNPROCESSABLE_ENTITY);
+		}
+		parent.setUsername(credentials.getUsername());
+		parent.setPassword(Encryption.getPassEncoded(credentials.getPassword()));
+		return new ResponseEntity<ParentEntity>(pareRepo.save(parent), HttpStatus.OK);
 	}
 
 	

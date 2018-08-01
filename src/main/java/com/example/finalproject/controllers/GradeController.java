@@ -7,6 +7,7 @@ import javax.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -46,14 +47,19 @@ public class GradeController {
 		return new ResponseEntity<GradeEntity>(gradRepo.findById(id).get(),HttpStatus.OK);
 	}
 	
+	@Secured("ROLE_ADMIN")
 	@PostMapping("/")
 	public ResponseEntity<?> addNewGrade(@Valid @RequestBody GradeEntity newGrade) {
 		GradeEntity grade = new GradeEntity();
 		grade.setYear(newGrade.getYear());
 		grade.setClassroom(newGrade.getClassroom());
+		if (gradRepo.findByYearAndClassroom(newGrade.getYear(), newGrade.getClassroom()) != null) {
+			return new ResponseEntity<RESTError>(new RESTError(1, "Grade already exists"), HttpStatus.NOT_FOUND);	
+		}
 		return new ResponseEntity<GradeEntity>(gradRepo.save(grade),HttpStatus.CREATED);
 	}
-	
+/*	
+	@Secured("ROLE_ADMIN")
 	@PutMapping("/{id}")
 	public ResponseEntity<?> updateGrade(@PathVariable Integer id, @Valid @RequestBody GradeEntity updGrade) {
 		if(!gradRepo.existsById(id)) {
@@ -62,8 +68,11 @@ public class GradeController {
 		GradeEntity grade = new GradeEntity();
 		grade.setYear(updGrade.getYear());
 		grade.setClassroom(updGrade.getClassroom());
+		if (gradRepo.findByYearAndClassroom(grade.getYear(), grade.getClassroom()) != null) {
+			return new ResponseEntity<RESTError>(new RESTError(1, "Grade already exists"), HttpStatus.NOT_FOUND);	
+		}
 		return new ResponseEntity<GradeEntity>(gradRepo.save(grade),HttpStatus.OK);
 	}
-	
+*/	
 	
 }

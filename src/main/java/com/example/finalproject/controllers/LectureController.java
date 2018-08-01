@@ -47,6 +47,7 @@ public class LectureController {
 	@Autowired
 	private LectureService lectServ;
 
+	
 	@GetMapping("/")
 	public List<LectureEntity> getAllLectures() {
 		return (List<LectureEntity>) lectRepo.findAll();

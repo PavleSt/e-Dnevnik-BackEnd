@@ -44,7 +44,7 @@ public class ParentController {
 	@Secured("ROLE_ADMIN")
 	@GetMapping("/active")
 	public ResponseEntity<?> getAllParentsActive() {
-		if(pareRepo.count() == 0) {
+		if(pareRepo.findAllByDeleted(false).isEmpty()) {
 			return new ResponseEntity<RESTError>(new RESTError(4, "List is empty"), HttpStatus.NOT_FOUND);
 		}
 		return new ResponseEntity<List<ParentEntity>>((List<ParentEntity>) pareRepo.findAllByDeleted(false), HttpStatus.OK);
@@ -53,7 +53,7 @@ public class ParentController {
 	@Secured("ROLE_ADMIN")
 	@GetMapping("/deleted")
 	public ResponseEntity<?> getAllParentsDeleted() {
-		if(pareRepo.count() == 0) {
+		if(pareRepo.findAllByDeleted(true).isEmpty()) {
 			return new ResponseEntity<RESTError>(new RESTError(4, "List is empty"), HttpStatus.NOT_FOUND);
 		}
 		return new ResponseEntity<List<ParentEntity>>((List<ParentEntity>) pareRepo.findAllByDeleted(true), HttpStatus.OK);
@@ -76,22 +76,23 @@ public class ParentController {
 
 	@Secured("ROLE_ADMIN")
 	@PutMapping("/{parentId}")
-	public ResponseEntity<?> updateTeacher(@PathVariable Integer parentId, @Valid @RequestBody ParentUpdateDTO newParent) {
+	public ResponseEntity<?> updateParent(@PathVariable Integer parentId, @Valid @RequestBody ParentUpdateDTO newParent) {
 		return pareServ.updateParent(newParent, parentId);
 	}
-	/*
+	
 	@Secured("ROLE_ADMIN")
-	@PutMapping("/credentials")
+	@PutMapping("/credentials/{parentId}")
 	public ResponseEntity<?> changeUserAndPass(@Valid @RequestBody CredentialsDTO credentials, @PathVariable Integer parentId) {
 		return pareServ.changeUserAndPass(credentials, parentId);
 	}
-	*/
-	@Secured("PARENT_ROLE")
+	
+	@Secured("ROLE_PARENT")
 	@PutMapping("/credentials/password")
 	public ResponseEntity<?> changePassword(@Valid @RequestBody CredentialsDTO credentials, Principal principal) {
 		return pareServ.changePassword(credentials, principal);
 	}
 	
+	/*
 	@Secured("ROLE_ADMIN")
 	@PutMapping("/delete-logical/{id}")
 	public ResponseEntity<?> deleteParentLogical(@PathVariable Integer id) {
@@ -113,6 +114,6 @@ public class ParentController {
 		pareRepo.deleteById(id);
 		return new ResponseEntity<ParentEntity>(parent, HttpStatus.OK);
 	}
-	
+	*/
 
 }

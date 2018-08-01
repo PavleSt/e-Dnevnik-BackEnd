@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.finalproject.entities.LectureEntity;
+import com.example.finalproject.entities.ParentEntity;
 import com.example.finalproject.entities.StudentEntity;
 import com.example.finalproject.entities.TeacherEntity;
 import com.example.finalproject.entities.dto.CredentialsDTO;
@@ -32,6 +33,7 @@ import com.example.finalproject.repositories.RoleRepository;
 import com.example.finalproject.repositories.StudentRepository;
 import com.example.finalproject.repositories.TeacherRepository;
 import com.example.finalproject.services.StudentService;
+import com.example.finalproject.utils.Encryption;
 import com.example.finalproject.utils.RESTError;
 
 @RestController
@@ -57,7 +59,7 @@ public class StudentController {
 	@Secured("ROLE_ADMIN")
 	@GetMapping("/active")
 	public ResponseEntity<?> getAllStudentsActive() {
-		if (studRepo.count() == 0) {
+		if (studRepo.findAllByDeleted(false).isEmpty()) {
 			return new ResponseEntity<RESTError>(new RESTError(4, "List is empty"), HttpStatus.NOT_FOUND);
 		}
 		return new ResponseEntity<List<StudentEntity>>((List<StudentEntity>) studRepo.findAllByDeleted(false), HttpStatus.OK);
@@ -66,7 +68,7 @@ public class StudentController {
 	@Secured("ROLE_ADMIN")
 	@GetMapping("/deleted")
 	public ResponseEntity<?> getAllStudentsDeleted() {
-		if (studRepo.count() == 0) {
+		if (studRepo.findAllByDeleted(true).isEmpty()) {
 			return new ResponseEntity<RESTError>(new RESTError(4, "List is empty"), HttpStatus.NOT_FOUND);
 		}
 		return new ResponseEntity<List<StudentEntity>>((List<StudentEntity>) studRepo.findAllByDeleted(true), HttpStatus.OK);
@@ -101,13 +103,13 @@ public class StudentController {
 		pareRepo.deleteById(id);
 		return new ResponseEntity<StudentEntity>(student, HttpStatus.OK);
 	}
-/*
+
 	@Secured("ROLE_ADMIN")
 	@PutMapping("/credentials")
-	public ResponseEntity<?> changeUserAndPass(@Valid @RequestBody CredentialsDTO credentials, Principal principal) {
-		return studServ.changeUserAndPass(credentials, principal);
+	public ResponseEntity<?> changeUserAndPass(@Valid @RequestBody CredentialsDTO credentials, Integer studentId) {
+		return studServ.changeUserAndPass(credentials, studentId);
 	}
-*/	
+	
 	@Secured("ROLE_STUDENT")
 	@PutMapping("/credentials/password")
 	public ResponseEntity<?> changePassword(@Valid @RequestBody CredentialsDTO credentials, Principal principal) {
@@ -116,15 +118,43 @@ public class StudentController {
 	
 	@Secured("ROLE_ADMIN")
 	@PutMapping("/delete-logical/{id}")
-	public ResponseEntity<?> deleteTeacherLogical(@PathVariable Integer id) {
+	public ResponseEntity<?> deleteStudentLogical(@PathVariable Integer id) {
 		if(!studRepo.existsById(id)) {
 			return new ResponseEntity<RESTError>(new RESTError(1, "User not found"), HttpStatus.NOT_FOUND);
 		}
 		StudentEntity student = studRepo.findById(id).get();
 		student.setDeleted(true);
+		student.setPassword(Encryption.getPassEncoded(student.getUsername()+"locked"));
+		ParentEntity parent = student.getParent();
+		parent.setDeleted(true);
+		List<StudentEntity> students = studRepo.findAllByParent(parent);
+		for (StudentEntity studentEntity : students) {
+			if (studentEntity.getDeleted().equals(false)) {
+				parent.setDeleted(false);
+				break;
+			}
+		}
+		if (parent.getDeleted().equals(true)) {
+			parent.setPassword(Encryption.getPassEncoded(parent.getUsername()+"locked"));
+		}
 		return new ResponseEntity<StudentEntity>(studRepo.save(student), HttpStatus.OK);
 	}
 	
+	@Secured("ROLE_ADMIN")
+	@PutMapping("/undo-logical/{id}")
+	public ResponseEntity<?> undoStudentLogical(@PathVariable Integer id) {
+		if(!studRepo.existsById(id)) {
+			return new ResponseEntity<RESTError>(new RESTError(1, "User not found"), HttpStatus.NOT_FOUND);
+		}
+		StudentEntity student = studRepo.findById(id).get();
+		student.setDeleted(false);
+		ParentEntity parent = student.getParent();
+		parent.setDeleted(false);
+		student.setPassword(Encryption.getPassEncoded(student.getUsername()+"unlocked"));
+		parent.setPassword(Encryption.getPassEncoded(parent.getUsername()+"unlocked"));
+		return new ResponseEntity<StudentEntity>(studRepo.save(student), HttpStatus.OK);
+	}
+/*	
 	@Secured("ROLE_ADMIN")
 	@DeleteMapping("/delete-permanent{id}")
 	public ResponseEntity<?> deleteTeacherPhisically(@PathVariable Integer id) {
@@ -135,6 +165,7 @@ public class StudentController {
 		studRepo.deleteById(id);
 		return new ResponseEntity<StudentEntity>(student, HttpStatus.OK);
 	}
+*/
 	
 	@Secured("ROLE_TEACHER")
 	@GetMapping("/by-teacher")

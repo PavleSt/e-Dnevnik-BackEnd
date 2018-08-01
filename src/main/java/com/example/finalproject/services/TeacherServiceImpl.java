@@ -88,25 +88,20 @@ public class TeacherServiceImpl implements TeacherService {
 				return new ResponseEntity<RESTError>(new RESTError(2, "Email address already exists"), HttpStatus.UNPROCESSABLE_ENTITY);	
 			}
 		}
-		else {
-			teacher.setEmail(newTeacher.getEmail());
-		}
+		teacher.setEmail(newTeacher.getEmail());
 		return new ResponseEntity<TeacherEntity>(teacRepo.save(teacher),HttpStatus.OK);
 	}
 	
 	@Override
 	public ResponseEntity<?> changePassword(CredentialsDTO credentials, Principal principal) {
-		if (teacRepo.findByUsername(credentials.getUsername()) == null) {
-			return new ResponseEntity<RESTError>(new RESTError(1, "User not found"), HttpStatus.NOT_FOUND);
-		}	
-		if (!(credentials.getUsername().equals(principal.getName()))) {
-			return new ResponseEntity<RESTError>(new RESTError(10, "Wrong username entered"), HttpStatus.UNAUTHORIZED);
-		}		
-		TeacherEntity teacher = teacRepo.findByUsername(credentials.getUsername());
-		// provera da li je korisnik koji pokusava da se uloguje prethodno obrisan
-		if (teacher.getDeleted().equals(true)) {
-			return new ResponseEntity<RESTError>(new RESTError(10, "User account does not exist!"), HttpStatus.UNAUTHORIZED);
+		TeacherEntity teacher = teacRepo.findByUsername(principal.getName());
+		
+		if (teacher.getUsername().equals(credentials.getUsername())) {
+			teacher.setUsername(credentials.getUsername());
+		} else {
+			return new ResponseEntity<RESTError>(new RESTError(7, "Incorect username"), HttpStatus.UNPROCESSABLE_ENTITY);
 		}
+
 		// provera da li se slazu sadasnji username i pass
 		if (Encryption.gettPassDecoded(credentials.getPassword(), teacher.getPassword()) == false) {
 			return new ResponseEntity<RESTError>(new RESTError(7, "Wrong password entered"), HttpStatus.UNPROCESSABLE_ENTITY);
@@ -127,18 +122,18 @@ public class TeacherServiceImpl implements TeacherService {
 		}
 		TeacherEntity teacher = teacRepo.findById(teacherId).get();
 		// provera za novi username
-		if (!(teacRepo.findByUsername(credentials.getUsernameNew()) == null)
-				|| !(pareRepo.findByUsername(credentials.getUsernameNew()) == null)
-				|| !(studRepo.findByUsername(credentials.getUsernameNew()) == null)) {
+		if (!(teacRepo.findByUsername(credentials.getUsername()) == null)
+				|| !(pareRepo.findByUsername(credentials.getUsername()) == null)
+				|| !(studRepo.findByUsername(credentials.getUsername()) == null)) {
 			return new ResponseEntity<RESTError>(new RESTError(2, "Username already exists"), HttpStatus.UNPROCESSABLE_ENTITY);
 		}
 		// provera lsaganja passworda
-		if (!(credentials.getPasswordNew().equals(credentials.getConfirmPassword()))) {
+		if (!(credentials.getPassword().equals(credentials.getConfirmPassword()))) {
 			return new ResponseEntity<RESTError>(new RESTError(3, "Password does not match"),
 					HttpStatus.UNPROCESSABLE_ENTITY);
 		}
-		teacher.setUsername(credentials.getUsernameNew());
-		teacher.setPassword(Encryption.getPassEncoded(credentials.getPasswordNew()));
+		teacher.setUsername(credentials.getUsername());
+		teacher.setPassword(Encryption.getPassEncoded(credentials.getPassword()));
 		return new ResponseEntity<TeacherEntity>(teacRepo.save(teacher), HttpStatus.OK);
 	}
 	

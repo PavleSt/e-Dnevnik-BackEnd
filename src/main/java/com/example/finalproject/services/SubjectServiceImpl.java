@@ -35,13 +35,12 @@ public class SubjectServiceImpl implements SubjectService {
 		return new ResponseEntity<SubjectEntity>(subjRepo.save(subject),HttpStatus.CREATED);
 	}
 
-	public ResponseEntity<?> updateSubject(SubjectDTO newSubject, Integer subjectId) {
+	public ResponseEntity<?> updateSubject(Integer nocl, Integer subjectId) {
 		if(!subjRepo.existsById(subjectId)) {
-			return new ResponseEntity<RESTError>(new RESTError(1, "User not found"), HttpStatus.NOT_FOUND);
+			return new ResponseEntity<RESTError>(new RESTError(1, "Subject not found"), HttpStatus.NOT_FOUND);
 		}
 		SubjectEntity subject = subjRepo.findById(subjectId).get();
-		subject.setSubjectName(subject.getSubjectName());
-		subject.setWeeklyLectures(newSubject.getWeeklyLectures());	
+		subject.setWeeklyLectures(nocl);	
 		return new ResponseEntity<SubjectEntity>(subjRepo.save(subject),HttpStatus.CREATED);
 	}
 

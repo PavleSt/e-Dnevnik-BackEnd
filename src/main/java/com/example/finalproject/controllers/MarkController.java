@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.finalproject.entities.MarkEntity;
+import com.example.finalproject.entities.ParentEntity;
 import com.example.finalproject.entities.StudentEntity;
 import com.example.finalproject.entities.SubjectEntity;
 import com.example.finalproject.entities.TeacherEntity;
@@ -30,6 +31,7 @@ import com.example.finalproject.entities.dto.MarkDTO;
 import com.example.finalproject.entities.GradeEntity;
 import com.example.finalproject.entities.LectureEntity;
 import com.example.finalproject.repositories.MarkRepository;
+import com.example.finalproject.repositories.ParentRepository;
 import com.example.finalproject.repositories.StudentRepository;
 import com.example.finalproject.repositories.SubjectRepository;
 import com.example.finalproject.repositories.TeacherRepository;
@@ -56,6 +58,8 @@ public class MarkController {
 	private SubjectRepository subjRepo;
 	@Autowired
 	private MarkService markServ;
+	@Autowired
+	private ParentRepository pareRepo;
 	
 	
 	@Secured("ROLE_ADMIN")
@@ -74,14 +78,11 @@ public class MarkController {
 		List<LectureEntity> lectures = lectRepo.findAllByTeacher(teacher);
 		List<MarkEntity> marks = new ArrayList<MarkEntity>();
 		for (LectureEntity lectureEntity : lectures) {
-			marks.addAll(markRepo.findAllByLecture(lectureEntity));
-			
-			
+			marks.addAll(markRepo.findAllByLecture(lectureEntity));	
 		}
-		
-		/*if (markRepo.findAllByLecture(lectureEntity) == null) {
+		if (marks.isEmpty()) {
 			return new ResponseEntity<RESTError>(new RESTError(1, "List is empty"), HttpStatus.NOT_FOUND);
-		}*/
+		}
 		
 		return new ResponseEntity<List<MarkEntity>>(marks,HttpStatus.OK);
 	}
@@ -114,14 +115,19 @@ public class MarkController {
 		return new ResponseEntity<List<MarkEntity>>((List<MarkEntity>) markRepo.findAllByStudent(student),HttpStatus.OK);
 	}
 	
-	@Secured("ROLE_ADMIN")
-	@GetMapping("/by-grade")
-	public ResponseEntity<?> getAllGradeMarks(@PathVariable Integer year, @PathVariable String classroom) {	
-		GradeEntity grade = gradRepo.findByYearAndClassroom(year, classroom);
-		if (markRepo.findAllByLecture(grade) == null) {
+	@Secured("ROLE_PARENT")
+	@GetMapping("/by-parent")
+	public ResponseEntity<?> getAllParentMarks(Principal principal) {	
+		ParentEntity parent = pareRepo.findByUsername(principal.getName());
+		List<StudentEntity> students = studRepo.findAllByParent(parent);
+		List<MarkEntity> marks = new ArrayList<MarkEntity>();
+		for (StudentEntity studentEntity: students) {
+			marks.addAll(markRepo.findAllByStudent(studentEntity));	
+		}
+		if (marks.isEmpty()) {
 			return new ResponseEntity<RESTError>(new RESTError(1, "List is empty"), HttpStatus.NOT_FOUND);
 		}
-		return new ResponseEntity<List<MarkEntity>>((List<MarkEntity>) markRepo.findAllByLecture(grade),HttpStatus.OK);
+		return new ResponseEntity<List<MarkEntity>>(marks,HttpStatus.OK);
 	}
 	
 	

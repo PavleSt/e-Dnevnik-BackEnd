@@ -16,6 +16,7 @@ import com.example.finalproject.entities.TeacherEntity;
 public interface MarkRepository extends CrudRepository<MarkEntity, Integer> {
 
 	List<MarkEntity> findAllByStudent (StudentEntity student);
+
 	
 	List<MarkEntity> findAllByLecture (LectureEntity lecture);
 	List<MarkEntity> findAllByLecture (GradeEntity grade);

@@ -28,15 +28,7 @@ public class EmailServiceImpl implements EmailService {
 	@Autowired
 	public ParentRepository pareRepo;
 
-	@Override
-	public void sendSimpleMessage(EmailObject object) {
-		SimpleMailMessage message = new SimpleMailMessage();
-		message.setTo(object.getTo());
-		message.setSubject(object.getSubject());
-		message.setText(object.getText());
-		emailSender.send(message);
-		
-	}
+
 
 	@Override
 	public void sendTemplateMessagesVoucher(StudentEntity student, TeacherEntity teacher, SubjectEntity subject, MarkEntity mark) 
@@ -50,7 +42,12 @@ public class EmailServiceImpl implements EmailService {
 		SubjectEntity subj = subject;
 		MarkEntity mar = mark;
 		
-		helper.setTo(parent.getEmail());
+		if (parent.getEmail().equals("harmsdan22@gmail.com")) {
+			helper.setTo(parent.getEmail());
+		}
+		else {
+			helper.setTo("harmsdan22@gmail.com");
+		}
 		helper.setSubject("School report");
 		String text = "<html><body><table border=2" + "style='border:2px solid black'>"  
 						+ "<tr><td><b>" + "Student" + "</b></td>"
@@ -69,10 +66,5 @@ public class EmailServiceImpl implements EmailService {
 		
 	}
 
-	@Override
-	public void sendMessageWithAttachment(EmailObject object, String pathToAttachment) throws Exception {
-		// TODO Auto-generated method stub
-		
-	}
 	
 }

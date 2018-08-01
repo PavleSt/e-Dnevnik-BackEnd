@@ -15,5 +15,6 @@ public interface ParentService {
 
 	ResponseEntity<?> addNewParent(ParentDTO newParent);
 	ResponseEntity<?> updateParent(ParentUpdateDTO newParent, Integer parentId);
+	ResponseEntity<?> changeUserAndPass(CredentialsDTO credentials, Integer parentId);
 	ResponseEntity<?> changePassword(CredentialsDTO credentials, Principal principal);
 }

@@ -8,8 +8,6 @@ import com.example.finalproject.models.EmailObject;
 
 public interface EmailService {
 
-	void sendSimpleMessage (EmailObject object);
 	void sendTemplateMessagesVoucher (StudentEntity student, TeacherEntity teacher, SubjectEntity subject, MarkEntity mark) throws Exception;
-	void sendMessageWithAttachment (EmailObject object, String pathToAttachment) throws Exception;
 	
 }

@@ -2,6 +2,7 @@ package com.example.finalproject.services;
 
 import java.security.Principal;
 import java.time.ZonedDateTime;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -15,6 +16,7 @@ import com.example.finalproject.entities.StudentEntity;
 import com.example.finalproject.entities.SubjectEntity;
 import com.example.finalproject.entities.TeacherEntity;
 import com.example.finalproject.entities.dto.MarkDTO;
+import com.example.finalproject.entities.enums.EMarkType;
 import com.example.finalproject.repositories.GradeRepository;
 import com.example.finalproject.repositories.LectureRepository;
 import com.example.finalproject.repositories.MarkRepository;
@@ -105,15 +107,10 @@ public class MarkServiceImpl implements MarkService {
 		
 		MarkEntity mark = new MarkEntity();
 		
-	
-	
-		
 		if (teacRepo.findByUsername(principal.getName()) == null) {
 			return new ResponseEntity<RESTError>(new RESTError(1, "Teacher not found"), HttpStatus.NOT_FOUND);	
 		}
 		TeacherEntity teacher = teacRepo.findByUsername(principal.getName());
-		
-	//	SubjectEntity subject = subjRepo.findBySubjectName(newMark.getSubjectName());
 		
 		if (lectRepo.findById(newMark.getLectureId()) == null) {
 			return new ResponseEntity<RESTError>(new RESTError(1, "Lecture not found"), HttpStatus.NOT_FOUND);
@@ -125,10 +122,16 @@ public class MarkServiceImpl implements MarkService {
 		}
 		
 		GradeEntity grade = gradRepo.findById(lecture.getGrade().getId()).get();
-		
+		SubjectEntity subject = subjRepo.findById(lecture.getSubject().getId()).get();
 		
 		StudentEntity student = studRepo.findById(newMark.getStudentId()).get();
-	
+		List<MarkEntity> marks = markRepo.findAllByStudent(student);
+		for (MarkEntity markEntity : marks) {
+			if (markEntity.getMarkType().equals(EMarkType.FINAL_MARK)) {
+				return new ResponseEntity<RESTError>(new RESTError(1, "Mark is alredy final"), HttpStatus.BAD_REQUEST);			
+			}
+			
+		}
 		
 		if (!(lecture.getGrade().equals(student.getGrade()))) {
 			return new ResponseEntity<RESTError>(new RESTError(6, "Teacher can only mark a student which is taking his course"
@@ -141,14 +144,13 @@ public class MarkServiceImpl implements MarkService {
 		mark.setEvaluationDate(ZonedDateTime.now());
 		mark.setStudent(student);
 		
-		/*try {
+		try {
 			emaiServ.sendTemplateMessagesVoucher(student, teacher, subject, mark);
 		} catch (Exception e) {
 			e.printStackTrace();
-		}*/
+		}
 		return new ResponseEntity<MarkEntity>(markRepo.save(mark),HttpStatus.CREATED);
-	
-}
+	}
 }
 	
 

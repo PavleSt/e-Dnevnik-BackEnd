@@ -34,10 +34,11 @@ public class StudentDTO {
 	@Temporal(TemporalType.DATE)
 	private Date dob;
 	
-	// dodaj custom anotaciju za proveru
+	@NotNull(message = "Parent must be provided!")
 	@JsonProperty("parent_id")
 	private Integer parentId;
-	// dodaj custom anotaciju za proveru
+	
+	@NotNull(message = "Grade must be provided!")
 	@JsonProperty("grade_id")
 	private Integer gradeId;
 	

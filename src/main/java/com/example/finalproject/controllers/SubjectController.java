@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.finalproject.entities.LectureEntity;
@@ -48,6 +49,7 @@ public class SubjectController {
 		}
 		return new ResponseEntity<List<SubjectEntity>>((List<SubjectEntity>) subjRepo.findAll(), HttpStatus.OK);
 	}
+	
 	@GetMapping("/{id}")
 	public ResponseEntity<?> getSubject(@PathVariable Integer id) {
 		if(!subjRepo.existsById(id)) {
@@ -62,9 +64,11 @@ public class SubjectController {
 		return subjServ.addNewSubject(newSubject);
 	}
 	
-	@PutMapping("/{id}")
-	public ResponseEntity<?> updateSubject(@PathVariable Integer subjectId, @Valid @RequestBody SubjectDTO newSubject) {
-		return subjServ.updateSubject(newSubject, subjectId);
+	//TO DO - prebaci nocl u body da ne bude param zbog validacije
+	@Secured("ROLE_ADMIN")
+	@PutMapping("/{subjectId}")
+	public ResponseEntity<?> updateSubject(@PathVariable Integer subjectId, @RequestParam("nocl") Integer nocl) {
+		return subjServ.updateSubject(nocl, subjectId);
 	}
 	
 	@Secured("ROLE_ADMIN")

@@ -6,6 +6,8 @@ import java.util.function.Consumer;
 import java.security.Principal;
 import javax.validation.Valid;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +20,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -31,7 +34,9 @@ import com.example.finalproject.repositories.LectureRepository;
 import com.example.finalproject.repositories.RoleRepository;
 import com.example.finalproject.repositories.SubjectRepository;
 import com.example.finalproject.repositories.TeacherRepository;
+import com.example.finalproject.services.FileHandler;
 import com.example.finalproject.services.TeacherService;
+import com.example.finalproject.utils.Encryption;
 import com.example.finalproject.utils.RESTError;
 
 @RestController
@@ -46,11 +51,15 @@ public class TeacherController {
 	private LectureRepository lectRepo;
 	@Autowired
 	private SubjectRepository subjRepo;
+	@Autowired
+	private FileHandler fileHand;
+	
+	private final Logger logger = (Logger) LoggerFactory.getLogger(this.getClass());
 	
 	@Secured("ROLE_ADMIN")
 	@GetMapping("/active")
 	public ResponseEntity<?> gettAllTeachersActive() {	
-		if(teacRepo.count() == 0) {
+		if(teacRepo.findAllByDeleted(false).isEmpty()) {
 			return new ResponseEntity<RESTError>(new RESTError(4, "List is empty"), HttpStatus.NOT_FOUND);
 		}
 		return new ResponseEntity<List<TeacherEntity>>((List<TeacherEntity>) teacRepo.findAllByDeleted(false), HttpStatus.OK);
@@ -59,7 +68,7 @@ public class TeacherController {
 	@Secured("ROLE_ADMIN")
 	@GetMapping("/deleted")
 	public ResponseEntity<?> gettAllTeachersDeleted() {
-		if(teacRepo.count() == 0) {
+		if(teacRepo.findAllByDeleted(true).isEmpty()) {
 			return new ResponseEntity<RESTError>(new RESTError(4, "List is empty"), HttpStatus.NOT_FOUND);
 		}
 		return new ResponseEntity<List<TeacherEntity>>((List<TeacherEntity>) teacRepo.findAllByDeleted(true), HttpStatus.OK);
@@ -77,17 +86,19 @@ public class TeacherController {
 	@Secured("ROLE_ADMIN")
 	@PostMapping("/add-teacher")
 	public ResponseEntity<?> addNewTeacher(@Valid @RequestBody TeacherDTO newTeacher) {
+		logger.info("Teacher added successfully!");
 		return teacServ.addNewTeacher(newTeacher);
 	}
 	
 	@Secured("ROLE_ADMIN")
 	@PutMapping("/{teacherId}")
 	public ResponseEntity<?> updateTeacher(@PathVariable Integer teacherId, @Valid @RequestBody TeacherUpdateDTO newTeacher) {
+		logger.info("Teacher updated successfully!");
 		return teacServ.updateTeacher(newTeacher, teacherId);
 	}
 	
 	@Secured("ROLE_ADMIN")
-	@PutMapping("/credentials")
+	@PutMapping("/credentials/{teacherId}")
 	public ResponseEntity<?> changeUserAndPass(@Valid @RequestBody CredentialsDTO credentials, @PathVariable Integer teacherId) {
 		return teacServ.changeUserAndPass(credentials, teacherId);
 	}
@@ -98,7 +109,7 @@ public class TeacherController {
 		return teacServ.changePassword(credentials, principal);
 	}
 	
-	@Secured("ROLE_ADMIN")
+	//@Secured("ROLE_TEACHER")
 	@GetMapping("/subjects/{teacherId}")
 	public ResponseEntity<?> returnAllTeacherSubjects(@PathVariable Integer teacherId) {
 			return teacServ.getAllTeacherSubjects(teacherId);
@@ -106,13 +117,19 @@ public class TeacherController {
 	
 	@Secured("ROLE_ADMIN")
 	@PutMapping("/delete-logical/{id}")
-	public ResponseEntity<?> deleteTeacherLogical(@PathVariable Integer id) {
+	public ResponseEntity<?> deleteTeacherLogical(@PathVariable Integer id, @RequestParam Integer newId) {
 		if(!teacRepo.existsById(id)) {
 			return new ResponseEntity<RESTError>(new RESTError(1, "User not found"), HttpStatus.NOT_FOUND);
 		}
 		TeacherEntity teacher = teacRepo.findById(id).get();
+		TeacherEntity teacherNew = teacRepo.findById(newId).get();
 		teacher.setDeleted(true);
-		teacher.setUsername("locked9"+teacher.getUsername());
+		teacher.setPassword(Encryption.getPassEncoded(teacher.getUsername()+"locked"));
+		List<LectureEntity> lectures = lectRepo.findAllByTeacher(teacher);
+		for (LectureEntity lectureEntity : lectures) {
+			lectureEntity.setTeacher(teacherNew);
+		}
+		logger.info("Teacher deleted successfully!");
 		return new ResponseEntity<TeacherEntity>(teacRepo.save(teacher), HttpStatus.OK);
 	}
 	
@@ -124,18 +141,19 @@ public class TeacherController {
 		}
 		TeacherEntity teacher = teacRepo.findById(id).get();
 		teacher.setDeleted(false);
-		teacher.setUsername(teacher.getUsername().substring(7));
+		teacher.setPassword(Encryption.getPassEncoded(teacher.getUsername()+"unlocked"));
 		return new ResponseEntity<TeacherEntity>(teacRepo.save(teacher), HttpStatus.OK);
 	}
 	
 	@Secured("ROLE_ADMIN")
-	@DeleteMapping("/delete-permanent{id}")
+	@DeleteMapping("/delete-permanent/{id}")
 	public ResponseEntity<?> deleteTeacherPhisically(@PathVariable Integer id) {
 		if(!teacRepo.existsById(id)) {
 			return new ResponseEntity<RESTError>(new RESTError(1, "User not found"), HttpStatus.NOT_FOUND);
 		}
 		TeacherEntity teacher = teacRepo.findById(id).get();
 		teacRepo.deleteById(id);
+		logger.info("Teacher permanently deleted!");
 		return new ResponseEntity<TeacherEntity>(teacher, HttpStatus.OK);
 	}
 	

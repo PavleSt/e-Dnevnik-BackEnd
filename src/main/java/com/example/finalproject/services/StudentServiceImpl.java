@@ -94,13 +94,14 @@ public class StudentServiceImpl implements StudentService {
 	
 	@Override
 	public ResponseEntity<?> changePassword(CredentialsDTO credentials, Principal principal) {
-		if (studRepo.findByUsername(credentials.getUsername()) == null) {
-			return new ResponseEntity<RESTError>(new RESTError(1, "User not found"), HttpStatus.NOT_FOUND);
+		StudentEntity student = studRepo.findByUsername(principal.getName());
+		
+		if (student.getUsername().equals(credentials.getUsername())) {
+			student.setUsername(credentials.getUsername());
+		} else {
+			return new ResponseEntity<RESTError>(new RESTError(7, "Incorect username"), HttpStatus.UNPROCESSABLE_ENTITY);
 		}
-		if (!(credentials.getUsername().equals(principal.getName()))) {
-			return new ResponseEntity<RESTError>(new RESTError(10, "Wrong username entered"), HttpStatus.UNAUTHORIZED);
-		}
-		StudentEntity student = studRepo.findByUsername(credentials.getUsername());
+
 		// provera da li se slazu sadasnji username i pass
 		if (Encryption.gettPassDecoded(credentials.getPassword(), student.getPassword()) == false) {
 			return new ResponseEntity<RESTError>(new RESTError(7, "Wrong password entered"), HttpStatus.UNPROCESSABLE_ENTITY);
@@ -115,39 +116,24 @@ public class StudentServiceImpl implements StudentService {
 	}
 
 	@Override
-	public ResponseEntity<?> changeUserAndPass(CredentialsDTO credentials, Principal principal) {
-		if (teacRepo.findByUsername(credentials.getUsername()) == null) {
+	public ResponseEntity<?> changeUserAndPass(CredentialsDTO credentials, Integer studentId) {
+		if (studRepo.findById(studentId).get() == null) {
 			return new ResponseEntity<RESTError>(new RESTError(1, "User not found"), HttpStatus.NOT_FOUND);
 		}
-		
-		if (!(credentials.getUsername().equals(principal.getName()))) {
-			return new ResponseEntity<RESTError>(new RESTError(10, "Wrong username"), HttpStatus.UNAUTHORIZED);
-		}
-		
-		StudentEntity student = studRepo.findByUsername(credentials.getUsername());
-		
-		// provera da li se slazu sadasnji username i pass
-		if (Encryption.gettPassDecoded(credentials.getPassword(), student.getPassword()) == false) {
-			return new ResponseEntity<RESTError>(new RESTError(7, "Wrong password"), HttpStatus.UNPROCESSABLE_ENTITY);
-		}
-		/*if (!(teacher.getPassword().equals(credentials.getPassword()))) {
-			return new ResponseEntity<RESTError>(new RESTError(7, "Wrong password"), HttpStatus.UNPROCESSABLE_ENTITY);
-		}*/
+		StudentEntity student = studRepo.findById(studentId).get();
 		// provera za novi username
-		if (!(teacRepo.findByUsername(credentials.getUsernameNew()) == null)
-				|| !(pareRepo.findByUsername(credentials.getUsernameNew()) == null)
-				|| !(studRepo.findByUsername(credentials.getUsernameNew()) == null)) {
+		if (!(studRepo.findByUsername(credentials.getUsername()) == null)
+				|| !(pareRepo.findByUsername(credentials.getUsername()) == null)
+				|| !(teacRepo.findByUsername(credentials.getUsername()) == null)) {
 			return new ResponseEntity<RESTError>(new RESTError(2, "Username already exists"), HttpStatus.UNPROCESSABLE_ENTITY);
 		}
 		// provera lsaganja passworda
-		if (!(credentials.getPasswordNew().equals(credentials.getConfirmPassword()))) {
+		if (!(credentials.getPassword().equals(credentials.getConfirmPassword()))) {
 			return new ResponseEntity<RESTError>(new RESTError(3, "Password does not match"),
 					HttpStatus.UNPROCESSABLE_ENTITY);
 		}
-
-		student.setUsername(credentials.getUsernameNew());
-		student.setPassword(Encryption.getPassEncoded(credentials.getPasswordNew()));
-
+		student.setUsername(credentials.getUsername());
+		student.setPassword(Encryption.getPassEncoded(credentials.getPassword()));
 		return new ResponseEntity<StudentEntity>(studRepo.save(student), HttpStatus.OK);
 		
 	}

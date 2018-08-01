@@ -61,8 +61,6 @@ public abstract class UserEntity {
 	@JsonProperty("date_of_birth")
 	@NotNull(message = "Date of birth must be provided!")
 	@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy")
-	@JsonDeserialize(using = CustomDateDeserializer.class)
-	@JsonSerialize(using = CustomDateSerializer.class)
 	//@Pattern(regexp = "^(0[1-9]|[12][0-9]|3[01])[-](0[1-9]|1[012])[-](19|20)\\d\\d$")
 	//@Past
 	@Temporal(TemporalType.DATE)
@@ -70,13 +68,13 @@ public abstract class UserEntity {
 	
 	@Column
 	@JsonProperty("username")
-	//@NotNull(message = "Username must be provided!")
+	@NotNull(message = "Username must be provided!")
 	@Size(min = 5, max = 15, message = "Username must be between {min} and {max} characters long!")
 	@Pattern(regexp = "^[a-zA-Z0-9]*$")
 	private String username;
 	
 	@Column
-	@JsonProperty("password")
+	//@JsonProperty("password")
 	@NotNull(message = "Password must be provided!")
 	@Size(min = 5, max = 100, message = "Password must be between {min} and {max} characters long!")
 	//@Pattern(regexp = "^[a-zA-Z0-9]*$")
@@ -138,7 +136,7 @@ public abstract class UserEntity {
 	public String getPassword() {
 		return password;
 	}
-	//@JsonProperty
+	@JsonProperty
 	public void setPassword(String password) {
 		this.password = password;
 	}

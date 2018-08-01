@@ -10,7 +10,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class CredentialsDTO {
 
 	@JsonProperty("username")
-	@NotNull(message = "Username must be provided!")
 	@Size(min = 5, max = 15, message = "Username must be between {min} and {max} characters long!")
 	@Pattern(regexp = "^[a-zA-Z0-9]*$")
 	private String username;
@@ -24,10 +23,8 @@ public class CredentialsDTO {
 	@JsonProperty("confirm_password")
 	@NotNull(message = "Password must be confirmed!")
 	private String confirmPassword;
-	
-	@Size(min = 5, max = 15, message = "Username must be between {min} and {max} characters long!")
-	@Pattern(regexp = "^[a-zA-Z0-9]*$")
-	private String usernameNew;
+
+	@JsonProperty("password_new")
 	@Size(min = 5, max = 15, message = "Password must be between {min} and {max} characters long!")
 	@Pattern(regexp = "^[a-zA-Z0-9]*$")
 	private String passwordNew;
@@ -54,12 +51,7 @@ public class CredentialsDTO {
 	public void setConfirmPassword(String confirmPassword) {
 		this.confirmPassword = confirmPassword;
 	}
-	public String getUsernameNew() {
-		return usernameNew;
-	}
-	public void setUsernameNew(String usernameNew) {
-		this.usernameNew = usernameNew;
-	}
+
 	public String getPasswordNew() {
 		return passwordNew;
 	}

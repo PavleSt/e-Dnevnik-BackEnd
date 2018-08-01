@@ -14,6 +14,6 @@ public interface StudentService {
 
 	ResponseEntity<?> addNewStudent(StudentDTO newStudent);
 	ResponseEntity<?> updateStudent(StudentUpdateDTO newStudent, Integer studentId);
-	ResponseEntity<?> changeUserAndPass(CredentialsDTO credentials, Principal principal);
+	ResponseEntity<?> changeUserAndPass(CredentialsDTO credentials, Integer studentId);
 	ResponseEntity<?> changePassword(CredentialsDTO credentials, Principal principal);
 }

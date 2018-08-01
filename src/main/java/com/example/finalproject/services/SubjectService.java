@@ -7,7 +7,7 @@ import com.example.finalproject.entities.dto.SubjectDTO;
 public interface SubjectService {
 	
 	ResponseEntity<?> addNewSubject (SubjectDTO newSubject);
-	ResponseEntity<?> updateSubject (SubjectDTO newSubject, Integer subjectId);
+	ResponseEntity<?> updateSubject (Integer nocl, Integer subjectId);
 	ResponseEntity<?> getAllSubjectTeachers(Integer subjectId);
 
 }
